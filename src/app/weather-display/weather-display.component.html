@@ -1,3 +1,30 @@
+<p-fieldset legend="Location">
+  <h4>{{timezone}}</h4>
+  <form [formGroup]="locationForm" (ngSubmit)="getWeatherByLonLat()">
+    <span class="p-float-label">
+      <input type="number" id="lon" class="p-inputtext-sm" pInputText formControlName="lon"/>  
+      <label htmlFor="lon">Longitude</label>
+      <div *ngIf="lon?.invalid && (lon?.dirty || lon?.touched)">
+        <div *ngIf="lon?.errors?.['required']">Longitude is required.</div>
+        <div *ngIf="lon?.errors?.['pattern']">Longitude must be a number.</div>
+      </div>
+    </span>
+    
+    <span class="p-float-label">
+      <input type="number" id="lat" class="p-inputtext-sm" pInputText formControlName="lat"/>  
+      <label htmlFor="lat">Latitude</label>
+      <div *ngIf="lat?.invalid && (lat?.dirty || lat?.touched)">
+        <div *ngIf="lat?.errors?.['required']">Latitude is required.</div>
+        <div *ngIf="lat?.errors?.['pattern']">Latitude must be a number.</div>
+      </div>
+    </span>
+    <p-button (onClick)="getWeatherByLonLat()" type="submit" [disabled]="locationForm.invalid">Search</p-button>
+  </form>
+</p-fieldset>
+
+
+
+
 <p-tabView>
   <p-tabPanel header="Today">
     <p-card>
