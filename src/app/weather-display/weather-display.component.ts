@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http'
-import { Observable } from 'rxjs';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { WeatherDataService } from './services/weather-data.service';
+import { Subscription, of, throwError } from 'rxjs';
 
 
 type Temperatures = {
@@ -13,22 +14,65 @@ type Temperatures = {
   templateUrl: './weather-display.component.html',
   styleUrls: ['./weather-display.component.css']
 })
-export class WeatherDisplayComponent implements OnInit {
+export class WeatherDisplayComponent implements OnInit, OnDestroy {
   current: number = 0;
   temperatures: Temperatures = {
     lowest: [],
     highest: []
   }
-  constructor(private http: HttpClient){}
+  locationForm: FormGroup;
+  timezone: string = '';
+  subscription: Subscription | undefined;
+  constructor(private weatherDataService: WeatherDataService){
+    this.locationForm = new FormGroup({
+      lon: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)]),
+      lat: new FormControl('', [Validators.required, Validators.pattern(/^\d+$/)])
+    });
+  }
   ngOnInit(): void {
-    this.getAPIData().subscribe((data) => {
+    this.subscription = this.weatherDataService.getAPIData('-3.53', '50.72').subscribe((data) => {
       console.log('DATA: ', data)
       this.current = Math.round(data.current_weather.temperature);
       this.temperatures.lowest = data.daily.temperature_2m_min;
       this.temperatures.highest = data.daily.temperature_2m_max;
     })
   }
-  getAPIData(): Observable<any>{
-    return this.http.get('https://api.open-meteo.com/v1/forecast?latitude=50.72&longitude=-3.53&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,rain,showers,snowfall,surface_pressure,visibility,windspeed_10m,winddirection_10m,is_day&daily=temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&current_weather=true&forecast_days=5');
+  ngOnDestroy() {
+    this.subscription?.unsubscribe();
+  }
+  get lon() {
+    return this.locationForm.get('lon');
+  }
+
+  get lat() {
+    return this.locationForm.get('lat');
+  }
+
+  getWeatherByLonLat(){
+    const defaultData = {
+      current_weather: { 
+        temperature: 0 
+      }, 
+      daily: {
+        temperature_2m_min: [0, 0, 0, 0, 0],
+        temperature_2m_max: [0, 0, 0, 0, 0]
+      }
+    }
+    if (this.locationForm.valid) {
+      const formData: { lat: number, lon: number } = this.locationForm.value;
+      this.subscription = this.weatherDataService.getAPIData(formData.lon.toString(), formData.lat.toString()).pipe((err) => {
+        console.error('API request error:', err);
+        return of(defaultData) // if the call fails or errors for any reason we want to return an observable with some default values
+      })
+      .subscribe((data) => {
+        if (data) {
+          this.current = Math.round(data.current_weather.temperature);
+          this.temperatures.lowest = data.daily.temperature_2m_min;
+          this.temperatures.highest = data.daily.temperature_2m_max;
+        }
+      })
+    } else {
+      // Handle form validation errors
+    }
   }
 }
