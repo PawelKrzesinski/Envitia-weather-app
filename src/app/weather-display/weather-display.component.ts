@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { WeatherDataService } from './services/weather-data.service';
 import { Subscription } from 'rxjs';
-import { WeatherData, WeatherDataPerDay } from './weather.model';
+import { WeatherData, TransformedWeatherDataByDay, TransformedWeatherDataByHour } from './weather.model';
 
 @Component({
   selector: 'app-weather-display',
@@ -17,7 +17,7 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
     '16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00',
   ];
   timezone = '';
-  day: WeatherDataPerDay = {
+  day: TransformedWeatherDataByDay = {
     sunrise: '',
     sunset: '',
     time: '',
@@ -28,17 +28,17 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
       apparent_temperature: [],
       is_day: [],
       precipitation_probability: [],
-      rain: [],
       surface_pressure: [],
       windspeed_10m: [],
       winddirection_10m: [],
+      visibility: [],
       time: [],
+      rain: [],
       showers: [],
       snowfall: [],
-      visibility: [],
     }
   }
-  days: WeatherDataPerDay[] = [this.day, this.day, this.day, this.day, this.day];
+  days: TransformedWeatherDataByDay[] = [this.day, this.day, this.day, this.day, this.day];
   selectedDay = this.days[0];
   activeIndex: number = 0;
   locationForm: FormGroup;
@@ -103,16 +103,29 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
     this.selectedDay = this.days[event.index];
   }
   
-  getFeelsLike(day: WeatherDataPerDay, hour: string): number {
+  getSelectedDayData(day: TransformedWeatherDataByDay, hour: string): TransformedWeatherDataByHour {
     const index = this.hours.indexOf(hour);
-    return Math.round(day.hourly.apparent_temperature[index]);
+    return {
+      feelsLike: Math.round(day.hourly.apparent_temperature[index]),
+      temp: Math.round(day.hourly.temperature_2m[index]),
+      precipitation: day.hourly.precipitation_probability[index],
+      pressure: Math.round(day.hourly.surface_pressure[index]),
+      windspeed: Math.round(day.hourly.windspeed_10m[index]),
+      winddirection: day.hourly.winddirection_10m[index],
+      visibility: day.hourly.visibility[index],
+      is_day: day.hourly.is_day[index],
+      rain: day.hourly.rain[index],
+      showers: day.hourly.showers[index],
+      snowfall: day.hourly.snowfall[index],
+    }
   }
 
-  mapApiDataToObject(data: WeatherData): WeatherDataPerDay[] {
+  mapApiDataToObject(data: WeatherData): TransformedWeatherDataByDay[] {
     const modifiedDates = this.handleDates(data.daily.time);
     const modifiedSunsetTime = this.handleTimes(data.daily.sunset)    
     const modifiedSunriseTime = this.handleTimes(data.daily.sunrise)  
-    const hourlyData = data.hourly;
+    const hourlyData = JSON.parse(JSON.stringify(data.hourly)); //Creates a deep copy of the original array to prevent mutating it.
+    console.log('CHECKING DATA1 :', data)
     const readyData = this.days.map((day, index) => {
       if(day.current_temp) day.current_temp = data.current_weather.temperature;
       return day = {
