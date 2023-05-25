@@ -1,28 +1,54 @@
-export type WeatherDaily = {
-  current_temp: number,
-  is_day: 0 | 1,
-  time: string,
-  wind_dir: number,
-  wind_spd: number,
-  sunrise: string[],
-  sunset: string[],
-  min_max_temp: Temperatures,
-  date: string[],
+export type WeatherData = {
+  current_weather: CurrentDay,
+  daily: {
+    time: string[],
+    sunrise: string[],
+    sunset: string[],
+    temperature_2m_max: number[],
+    temperature_2m_min: number[],
+  },
+  hourly: WeatherHourly,
+  latitude: number,
+  longitude: number,
   timezone: string,
 }
 
-type Temperatures = {
-  lowest: number[],
-  highest: number[]
+export type WeatherDaily = {
+  time: string,
+  sunrise: string,
+  sunset: string,
+  temperature_2m_max: number,
+  temperature_2m_min: number,
+  current_temp?: number,
+}
+
+export type CurrentDay = {
+  is_day: number,
+  temperature: number,
+  time: string,
+  winddirection: number,
+  windspeed: number,
 }
 
 export type WeatherHourly = {
-  temperature: number[],
-  feel_like_temp: number[],
-  is_day: number[],
-  precipitation: number[]
+  time: string[],
+  temperature_2m: number[],
+  apparent_temperature: number[],
+  precipitation_probability: number[],
   rain: number[],
-  pressure: number[],
-  wind_dir: number[],
-  wind_spd: number[],
+  showers: number[],
+  snowfall: number[],
+  surface_pressure: number[],
+  visibility: number[],
+  windspeed_10m: number[],
+  winddirection_10m: number[],
+  is_day: number[],
+}
+
+export type WeatherDataPerDay = WeatherDaily & {
+  hourly: WeatherHourly
+};
+
+export type CurrentWeatherData = {
+  
 }

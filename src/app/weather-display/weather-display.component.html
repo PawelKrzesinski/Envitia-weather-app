@@ -9,7 +9,6 @@
         <div *ngIf="lon?.errors?.['pattern']">Longitude must be a number.</div>
       </div>
     </span>
-    
     <span class="p-float-label">
       <input type="number" id="lat" class="p-inputtext-sm" pInputText formControlName="lat"/>  
       <label htmlFor="lat">Latitude</label>
@@ -22,23 +21,53 @@
   </form>
 </p-fieldset>
 
-
-
-
-<p-tabView>
-  <p-tabPanel header="Today">
+<p-tabView (onChange)="dayChangeHandler($event)">
+  <p-tabPanel *ngFor="let day of days" [header]="day.time">
     <p-card>
-      <h2>{{current}}</h2>
-      <h4>{{temperatures.lowest[0]}}</h4>
-      <h4>{{temperatures.highest[0]}}</h4>
+      <h2 *ngIf="day.current_temp">Current temperature: {{day.current_temp}}</h2>
+      <h4>Min: {{day.temperature_2m_min}}</h4>
+      <h4>Max: {{day.temperature_2m_max}}</h4>
+      <h4>Sunrise: {{day.sunrise}}</h4>
+      <h4>Sunset: {{day.sunset}}</h4>
     </p-card>
   </p-tabPanel>
-  <p-tabPanel header="2 days">
-  </p-tabPanel>
-  <p-tabPanel header="3 days">
-  </p-tabPanel>
-  <p-tabPanel header="4 days">
-  </p-tabPanel>
-  <p-tabPanel header="5 days">
-  </p-tabPanel>
+
 </p-tabView>
+<div [ngSwitch]="selectedDay">
+  <p-carousel *ngSwitchCase="days[0]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="false" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card [header]="hour">
+        <div>Feels like: {{ getFeelsLike(days[0], hour) }}C</div>
+      </p-card>
+    </ng-template>
+  </p-carousel>
+  <!-- <p-carousel *ngSwitchCase="days[1]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="false" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card [header]="hour">
+        <div>Feels like: {{ getFeelsLike(days[1], hour) }}C</div>
+      </p-card>
+    </ng-template>
+  </p-carousel>
+  <p-carousel *ngSwitchCase="days[2]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="false" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card [header]="hour">
+        <div>Feels like: {{ getFeelsLike(days[2], hour) }}C</div>
+      </p-card>
+    </ng-template>
+  </p-carousel>
+  <p-carousel *ngSwitchCase="days[3]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="false" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card [header]="hour">
+        <div>Feels like: {{ getFeelsLike(days[3], hour) }}C</div>
+      </p-card>
+    </ng-template>
+  </p-carousel>
+  <p-carousel *ngSwitchCase="days[4]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="false" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card [header]="hour">
+        <div>Feels like: {{ getFeelsLike(days[4], hour) }}C</div>
+      </p-card>
+    </ng-template>
+  </p-carousel> -->
+  
+</div>
