@@ -23,6 +23,7 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
     time: '',
     temperature_2m_max: 1,
     temperature_2m_min: 1,
+    weathercode: 1,
     hourly: {
       temperature_2m: [],
       apparent_temperature: [],
@@ -36,6 +37,7 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
       rain: [],
       showers: [],
       snowfall: [],
+      weathercode: [],
     }
   }
   days: TransformedWeatherDataByDay[] = [this.day, this.day, this.day, this.day, this.day];
@@ -45,35 +47,17 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
   subscription: Subscription | undefined;
   constructor(private weatherDataService: WeatherDataService){
     this.locationForm = new FormGroup({
-      lon: new FormControl('', [Validators.required, Validators.pattern(/[+-]?([0-9]*[.])?[0-9]+/)]),
-      lat: new FormControl('', [Validators.required, Validators.pattern(/[+-]?([0-9]*[.])?[0-9]+/)])
+      lon: new FormControl('', [Validators.required, Validators.pattern(/^-?((\d{1,2}|1[0-7]\d)(\.\d{1,2})?|180(\.0{1,2})?)$/)]),
+      lat: new FormControl('', [Validators.required, Validators.pattern(/^-?((\d{1,2}|[1-8]\d)(\.\d{1,2})?|90(\.0{1,2})?)$/)])
     });
   }
   ngOnInit(): void {
     this.subscription = this.weatherDataService.getAPIData('-3.53', '50.72').subscribe((data: WeatherData) => {
       console.log('DATA: ', data)
-      this.days = this.mapApiDataToObject(data);
-      this.selectedDay = this.days[0];
-      this.days[0].current_temp = data.current_weather.temperature;
-      this.timezone = data.timezone;
+      this.days = this.weatherDataService.mapApiDataToObject(data, this.days, this.hours);
+      this.setTempAndTimezone(data);
     });
-    this.responsiveOptions = [
-      {
-          breakpoint: '991px',
-          numVisible: 4,
-          numScroll: 4
-      },
-      {
-          breakpoint: '769px',
-          numVisible: 2,
-          numScroll: 2
-      },
-      {
-          breakpoint: '480px',
-          numVisible: 1,
-          numScroll: 1,
-      }
-    ];
+    this.responsiveOptions = this.setResponsiveOptions();
   }
   ngOnDestroy() {
     this.subscription?.unsubscribe();
@@ -90,9 +74,10 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
   getWeatherByLonLat(){
     if (this.locationForm.valid) {
       const formData: { lat: number, lon: number } = this.locationForm.value;
-      this.subscription = this.weatherDataService.getAPIData(formData.lon.toString(), formData.lat.toString()).subscribe((data) => {
+      this.subscription = this.weatherDataService.getAPIData(formData.lon.toString(), formData.lat.toString()).subscribe((data: WeatherData) => {
         if (data) {
-          this.mapApiDataToObject(data);
+          this.days = this.weatherDataService.mapApiDataToObject(data, this.days, this.hours);
+          this.setTempAndTimezone(data);
         }
       })
     } else {
@@ -103,63 +88,21 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
     this.selectedDay = this.days[event.index];
   }
   
-  getSelectedDayData(day: TransformedWeatherDataByDay, hour: string): TransformedWeatherDataByHour {
-    const index = this.hours.indexOf(hour);
-    return {
-      feelsLike: Math.round(day.hourly.apparent_temperature[index]),
-      temp: Math.round(day.hourly.temperature_2m[index]),
-      precipitation: day.hourly.precipitation_probability[index],
-      pressure: Math.round(day.hourly.surface_pressure[index]),
-      windspeed: Math.round(day.hourly.windspeed_10m[index]),
-      winddirection: day.hourly.winddirection_10m[index],
-      visibility: day.hourly.visibility[index],
-      is_day: day.hourly.is_day[index],
-      rain: day.hourly.rain[index],
-      showers: day.hourly.showers[index],
-      snowfall: day.hourly.snowfall[index],
-    }
+  getSelectedDayData(day: TransformedWeatherDataByDay, hour: string, hours: string[]){
+    return this.weatherDataService.getSelectedDayData(day, hour, hours);
   }
 
-  mapApiDataToObject(data: WeatherData): TransformedWeatherDataByDay[] {
-    const modifiedDates = this.handleDates(data.daily.time);
-    const modifiedSunsetTime = this.handleTimes(data.daily.sunset)    
-    const modifiedSunriseTime = this.handleTimes(data.daily.sunrise)  
-    const hourlyData = JSON.parse(JSON.stringify(data.hourly)); //Creates a deep copy of the original array to prevent mutating it.
-    console.log('CHECKING DATA1 :', data)
-    const readyData = this.days.map((day, index) => {
-      if(day.current_temp) day.current_temp = data.current_weather.temperature;
-      return day = {
-        sunset: modifiedSunsetTime[index],
-        sunrise: modifiedSunriseTime[index],
-        time: modifiedDates[index],
-        temperature_2m_max: data.daily.temperature_2m_max[index],
-        temperature_2m_min: data.daily.temperature_2m_min[index],
-        hourly: {
-          time: hourlyData.time.splice(0, this.hours.length),
-          temperature_2m: hourlyData.temperature_2m.splice(0, this.hours.length),
-          apparent_temperature: hourlyData.apparent_temperature.splice(0, this.hours.length),
-          precipitation_probability: hourlyData.precipitation_probability.splice(0, this.hours.length),
-          rain: hourlyData.rain.splice(0, this.hours.length),
-          showers: hourlyData.showers.splice(0, this.hours.length),
-          snowfall: hourlyData.snowfall.splice(0, this.hours.length),
-          surface_pressure: hourlyData.surface_pressure.splice(0, this.hours.length),
-          visibility: hourlyData.visibility.splice(0, this.hours.length),
-          windspeed_10m: hourlyData.windspeed_10m.splice(0, this.hours.length),
-          winddirection_10m: hourlyData.winddirection_10m.splice(0, this.hours.length),
-          is_day: hourlyData.is_day.splice(0, this.hours.length),
-        }
-      }
-    })
-    return readyData;
+  setTempAndTimezone(data: WeatherData){
+    this.selectedDay = this.days[0];
+    this.days[0].current_temp = data.current_weather.temperature;
+    this.timezone = data.timezone;
+  }
+  setResponsiveOptions() {
+    return this.weatherDataService.responsiveOptions;
   }
 
-  handleDates(data: string[]): string[] {
-    return data.map((date) => {
-      const newDate = date.split('-');
-      return `${newDate[2]}/${newDate[1]}`
-    });
+  fetchWeatherIcon(code: number){
+    return this.weatherDataService.getWeatherIcons(code)
   }
-  handleTimes(data: string[]): string[] { 
-    return data.map((date) => date.split('T')[1]);
-  }
+
 }
