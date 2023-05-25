@@ -10,12 +10,21 @@ import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FieldsetModule } from 'primeng/fieldset';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { TabMenuModule } from 'primeng/tabmenu';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { CarouselModule } from 'primeng/carousel';
+
+
+
+
+
 @NgModule({
   declarations: [
     AppComponent,
     WeatherDisplayComponent,
   ],
   imports: [
+    RouterModule.forRoot([]),
     BrowserModule,
     BrowserAnimationsModule,
     ButtonModule,
@@ -26,6 +35,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     FormsModule,
     FieldsetModule,
     ReactiveFormsModule,
+    TabMenuModule,
+    CarouselModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -9,7 +9,6 @@
         <div *ngIf="lon?.errors?.['pattern']">Longitude must be a number.</div>
       </div>
     </span>
-    
     <span class="p-float-label">
       <input type="number" id="lat" class="p-inputtext-sm" pInputText formControlName="lat"/>  
       <label htmlFor="lat">Latitude</label>
@@ -22,23 +21,32 @@
   </form>
 </p-fieldset>
 
-
-
-
-<p-tabView>
-  <p-tabPanel header="Today">
+<p-tabView (onChange)="dayChangeHandler($event)">
+  <p-tabPanel *ngFor="let day of days" [header]="day.time">
     <p-card>
-      <h2>{{current}}</h2>
-      <h4>{{temperatures.lowest[0]}}</h4>
-      <h4>{{temperatures.highest[0]}}</h4>
+      <h2 *ngIf="day.current_temp">Current temperature: {{day.current_temp}}</h2>
+      <h4>Min: {{day.temperature_2m_min}}</h4>
+      <h4>Max: {{day.temperature_2m_max}}</h4>
+      <h4>Sunrise: {{day.sunrise}}</h4>
+      <h4>Sunset: {{day.sunset}}</h4>
     </p-card>
   </p-tabPanel>
-  <p-tabPanel header="2 days">
-  </p-tabPanel>
-  <p-tabPanel header="3 days">
-  </p-tabPanel>
-  <p-tabPanel header="4 days">
-  </p-tabPanel>
-  <p-tabPanel header="5 days">
-  </p-tabPanel>
+
 </p-tabView>
+<div [ngSwitch]="selectedDay">
+  <p-carousel *ngSwitchCase="days[0]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card class="no-header-card">
+        <h3>{{hour}}</h3>
+        <p>Temp: {{ getSelectedDayData(days[0], hour).temp }}C</p>
+        <p>Feels like: {{ getSelectedDayData(days[0], hour).feelsLike }}C</p>
+        <p>Precipitation: {{ getSelectedDayData(days[0], hour).precipitation}}%</p>
+        <p>Pressure: {{ getSelectedDayData(days[0], hour).pressure }}hPa</p>
+        <p>Wind speed: {{ getSelectedDayData(days[0], hour).windspeed }}km/h</p>
+        <p>Visibility: {{ getSelectedDayData(days[0], hour).visibility }}m</p>
+        <!-- <p>{{ getSelectedDayData(days[0], hour).winddirection }}</p> -->
+        <!-- <p>{{ getSelectedDayData(days[0], hour).is_day }}</p> -->
+      </p-card>
+    </ng-template>
+  </p-carousel> 
+</div>
