@@ -27,6 +27,9 @@ input[type=number]{
 ::ng-deep .no-header-card .p-card-content {
   padding-top: 0;
 }
+::ng-deep .no-header-card div {
+  border-radius: 0;
+}
 
 .no-header-card h3{
   margin-top: 0;
@@ -40,7 +43,9 @@ input[type=number]{
 ::ng-deep .extra-info .p-card-content{
   display: flex;
 }
-
+::ng-deep .extra-info div{
+  border-radius: 6px;
+}
 ::ng-deep .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button{
   background-color: purple !important;
 }
