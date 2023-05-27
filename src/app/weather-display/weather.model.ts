@@ -6,6 +6,7 @@ export type WeatherData = {
     sunset: string[],
     temperature_2m_max: number[],
     temperature_2m_min: number[],
+    weathercode: number[],
   },
   hourly: HourlyWeatherData,
   latitude: number,
@@ -28,6 +29,8 @@ export type DailyWeatherData = {
   temperature_2m_max: number,
   temperature_2m_min: number,
   current_temp?: number,
+  weathercode: number,
+  weather_icon: string,
 }
 
 export type HourlyWeatherData = {
@@ -43,6 +46,7 @@ export type HourlyWeatherData = {
   windspeed_10m: number[],
   winddirection_10m: number[],
   is_day: number[],
+  weathercode: number[],
 }
 
 export type TransformedWeatherDataByDay = DailyWeatherData & {
@@ -50,15 +54,21 @@ export type TransformedWeatherDataByDay = DailyWeatherData & {
 };
 
 export type TransformedWeatherDataByHour = {
-  feelsLike: number,
+  feels_like: number,
   temp: number,
   precipitation: number,
   pressure: number,
   windspeed: number,
-  winddirection: number,
+  wind_direction: number,
   visibility: number,
   is_day: number,
   rain: number,
   showers: number,
   snowfall: number,
+}
+
+export type ResponsiveSettings = {
+  breakpoint: string,
+  numVisible: number,
+  numScroll: number,
 }

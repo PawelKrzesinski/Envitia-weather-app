@@ -1,52 +1,238 @@
-<p-fieldset legend="Location">
-  <h4>{{timezone}}</h4>
-  <form [formGroup]="locationForm" (ngSubmit)="getWeatherByLonLat()">
-    <span class="p-float-label">
-      <input type="number" id="lon" class="p-inputtext-sm" pInputText formControlName="lon"/>  
-      <label htmlFor="lon">Longitude</label>
-      <div *ngIf="lon?.invalid && (lon?.dirty || lon?.touched)">
-        <div *ngIf="lon?.errors?.['required']">Longitude is required.</div>
-        <div *ngIf="lon?.errors?.['pattern']">Longitude must be a number.</div>
-      </div>
-    </span>
-    <span class="p-float-label">
-      <input type="number" id="lat" class="p-inputtext-sm" pInputText formControlName="lat"/>  
-      <label htmlFor="lat">Latitude</label>
-      <div *ngIf="lat?.invalid && (lat?.dirty || lat?.touched)">
-        <div *ngIf="lat?.errors?.['required']">Latitude is required.</div>
-        <div *ngIf="lat?.errors?.['pattern']">Latitude must be a number.</div>
-      </div>
-    </span>
-    <p-button (onClick)="getWeatherByLonLat()" type="submit" [disabled]="locationForm.invalid">Search</p-button>
-  </form>
-</p-fieldset>
+<div class="w-11 mx-auto my-8">
+  <p-tabView (onChange)="dayChangeHandler($event)" class="">
+    <p-tabPanel *ngFor="let day of days" [header]="day.time">
+        <p-fieldset [legend]="timezone" class="w-full h-35rem flex">
+          <!-- INPUT FIELDS -->
+          <form [formGroup]="locationForm" (submit)="getWeatherByLonLat()">
+            <span class="p-float-label my-4">
+              <input type="number" id="lon" class="p-inputtext-sm" pInputText formControlName="lon"/>  
+              <label htmlFor="lon">Longitude*</label>
+              <div *ngIf="lon?.invalid && (lon?.dirty || lon?.touched)">
+                <div *ngIf="lon?.errors?.['required']">Longitude is required.</div>
+                <div *ngIf="lon?.errors?.['pattern']">Longitude must be a number between -180 and 180. Two decimal places allowed.</div>
+              </div>
+            </span>
+            <span class="p-float-label my-2">
+              <input type="number" id="lat" class="p-inputtext-sm" pInputText formControlName="lat"/>  
+              <label htmlFor="lat">Latitude*</label>
+              <div *ngIf="lat?.invalid && (lat?.dirty || lat?.touched)">
+                <div *ngIf="lat?.errors?.['required']">Latitude is required.</div>
+                <div *ngIf="lat?.errors?.['pattern']">Latitude must be a number between -90 and 90. Two decimal places allowed.</div>
+              </div>
+            </span>
+            <p-button (onClick)="getWeatherByLonLat()" type="submit" [disabled]="locationForm.invalid">Search</p-button>
+          </form>
+          <!-- MAIN INFO -->
+          <div class="daily-weather-card-inner font-light">
+            <div class="flex ml-4" *ngIf="day.current_temp">
+              <h2>Current temperature: {{day.current_temp}}&deg;C</h2>
+              <p-avatar size="xlarge" [style]="{ 'background-color': '#A4E3F9' }" class="mx-4">
+                <img src={{day.weather_icon}}>
+              </p-avatar>
+            </div>
+            <div class="flex w-full justify-content-around">
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/thermometer.svg" class="weather-icons">
+                <h3 class="ml-1">Feels Like: {{ currentHourly.feels_like }}&deg;C</h3>
+              </div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/thermometer_min.svg" class="weather-icons mr-2">
+                <h3 class="mx-1">Min: {{day.temperature_2m_min}}&deg;C</h3>
+              </div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/thermometer_max.svg" class="weather-icons mr-2">
+                <h3 class="mx-1">Max: {{day.temperature_2m_max}}&deg;C</h3>  
+              </div>
 
-<p-tabView (onChange)="dayChangeHandler($event)">
-  <p-tabPanel *ngFor="let day of days" [header]="day.time">
-    <p-card>
-      <h2 *ngIf="day.current_temp">Current temperature: {{day.current_temp}}</h2>
-      <h4>Min: {{day.temperature_2m_min}}</h4>
-      <h4>Max: {{day.temperature_2m_max}}</h4>
-      <h4>Sunrise: {{day.sunrise}}</h4>
-      <h4>Sunset: {{day.sunset}}</h4>
-    </p-card>
-  </p-tabPanel>
-
-</p-tabView>
+            </div>
+            <div class="flex w-full justify-content-around">
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/arrow_up.svg" class="weather-icons-up">
+                <img src="../../assets/icons/sunset.svg" class="weather-icons">
+                <h3 class="mx-2">Sunrise: {{day.sunrise}}</h3>
+              </div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/sunset.svg" class="weather-icons">
+                <img src="../../assets/icons/arrow_down.svg" class="weather-icons-down">
+                <h3 class="mx-2">Sunset: {{day.sunset}}</h3>
+              </div>
+            </div>
+          </div>
+          <!-- EXTRA INFO CARD -->
+          <p-card class="no-header-card extra-info">
+            <div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/rain.svg" class="weather-icons">
+                <p class="ml-2">Precipitation: {{ currentHourly.precipitation}}%</p>
+              </div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/gauge.svg" class="weather-icons">
+                <p class="ml-2">Pressure: {{ currentHourly.pressure }}hPa</p>
+              </div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/arrow_up.svg" class="weather-icons" [ngStyle]="{ transform: 'rotate(' + currentHourly.wind_direction + 'deg)' }">
+                <p class="ml-2">Wind speed: {{ currentHourly.windspeed }}km/h</p>
+              </div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/visibility.svg" class="weather-icons" >
+                <p class="ml-2">Visibility: {{ currentHourly.visibility }}m</p>
+              </div>
+            </div>
+            <div class="flex flex-column justify-content-center ml-4">
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/rain_l.svg" class="weather-icons">
+                <p class="ml-2">Chance of rain: {{ currentHourly.rain ? 'Yes' : 'No' }}</p>
+              </div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/rain_h.svg" class="weather-icons">
+                <p class="ml-2">Chance of showers: {{ currentHourly.showers ? 'Yes' : 'No' }}</p>
+              </div>
+              <div class="flex align-items-center">
+                <img src="../../assets/icons/snow.svg" class="weather-icons">
+                <p class="ml-2">Chance of snow: {{ currentHourly.snowfall ? 'Yes' : 'No' }}</p>
+              </div>
+            </div>
+            
+          </p-card>
+        </p-fieldset>
+    </p-tabPanel>
+  </p-tabView>
+</div>
+<!-- HOURLY INFO CAROUSELS -->
 <div [ngSwitch]="selectedDay">
   <p-carousel *ngSwitchCase="days[0]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
     <ng-template let-hour pTemplate="body">
-      <p-card class="no-header-card">
+      <p-card class="no-header-card border-noround bg-white">
         <h3>{{hour}}</h3>
-        <p>Temp: {{ getSelectedDayData(days[0], hour).temp }}C</p>
-        <p>Feels like: {{ getSelectedDayData(days[0], hour).feelsLike }}C</p>
-        <p>Precipitation: {{ getSelectedDayData(days[0], hour).precipitation}}%</p>
-        <p>Pressure: {{ getSelectedDayData(days[0], hour).pressure }}hPa</p>
-        <p>Wind speed: {{ getSelectedDayData(days[0], hour).windspeed }}km/h</p>
-        <p>Visibility: {{ getSelectedDayData(days[0], hour).visibility }}m</p>
-        <!-- <p>{{ getSelectedDayData(days[0], hour).winddirection }}</p> -->
-        <!-- <p>{{ getSelectedDayData(days[0], hour).is_day }}</p> -->
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/thermometer.svg" class="weather-icons">
+          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[0], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[0], hour, hours).feels_like }}&deg;C</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/rain.svg" class="weather-icons">
+          <p class="ml-1">Precipitation: {{ extractDataByHour(days[0], hour, hours).precipitation}}%</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/gauge.svg" class="weather-icons">
+          <p class="ml-1">Pressure: {{ extractDataByHour(days[0], hour, hours).pressure }}hPa</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/wind.svg" class="weather-icons">
+          <p class="ml-1">Wind speed: {{ extractDataByHour(days[0], hour, hours).windspeed }}km/h</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/visibility.svg" class="weather-icons">
+          <p class="ml-1">Visibility: {{ extractDataByHour(days[0], hour, hours).visibility }}m</p>
+        </div>
       </p-card>
     </ng-template>
-  </p-carousel> 
+  </p-carousel>
+  <p-carousel *ngSwitchCase="days[1]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card class="no-header-card">
+        <h3>{{hour}}</h3>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/thermometer.svg" class="weather-icons">
+          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[1], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[0], hour, hours).feels_like }}&deg;C</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/rain.svg" class="weather-icons">
+          <p class="ml-1">Precipitation: {{ extractDataByHour(days[1], hour, hours).precipitation}}%</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/gauge.svg" class="weather-icons">
+          <p class="ml-1">Pressure: {{ extractDataByHour(days[1], hour, hours).pressure }}hPa</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/wind.svg" class="weather-icons">
+          <p class="ml-1">Wind speed: {{ extractDataByHour(days[1], hour, hours).windspeed }}km/h</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/visibility.svg" class="weather-icons">
+          <p class="ml-1">Visibility: {{ extractDataByHour(days[1], hour, hours).visibility }}m</p>
+        </div>
+      </p-card>
+    </ng-template>
+  </p-carousel>
+  <p-carousel *ngSwitchCase="days[2]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card class="no-header-card">
+        <h3>{{hour}}</h3>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/thermometer.svg" class="weather-icons">
+          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[2], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[0], hour, hours).feels_like }}&deg;C</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/rain.svg" class="weather-icons">
+          <p class="ml-1">Precipitation: {{ extractDataByHour(days[2], hour, hours).precipitation}}%</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/gauge.svg" class="weather-icons">
+          <p class="ml-1">Pressure: {{ extractDataByHour(days[2], hour, hours).pressure }}hPa</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/wind.svg" class="weather-icons">
+          <p class="ml-1">Wind speed: {{ extractDataByHour(days[2], hour, hours).windspeed }}km/h</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/visibility.svg" class="weather-icons">
+          <p class="ml-1">Visibility: {{ extractDataByHour(days[2], hour, hours).visibility }}m</p>
+        </div>
+      </p-card>
+    </ng-template>
+  </p-carousel>
+  <p-carousel *ngSwitchCase="days[3]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card class="no-header-card">
+        <h3>{{hour}}</h3>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/thermometer.svg" class="weather-icons">
+          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[3], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[3], hour, hours).feels_like }}&deg;C</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/rain.svg" class="weather-icons">
+          <p class="ml-1">Precipitation: {{ extractDataByHour(days[3], hour, hours).precipitation}}%</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/gauge.svg" class="weather-icons">
+          <p class="ml-1">Pressure: {{ extractDataByHour(days[3], hour, hours).pressure }}hPa</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/wind.svg" class="weather-icons">
+          <p class="ml-1">Wind speed: {{ extractDataByHour(days[3], hour, hours).windspeed }}km/h</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/visibility.svg" class="weather-icons">
+          <p class="ml-1">Visibility: {{ extractDataByHour(days[3], hour, hours).visibility }}m</p>
+        </div>
+      </p-card>
+    </ng-template>
+  </p-carousel>
+  <p-carousel *ngSwitchCase="days[4]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+    <ng-template let-hour pTemplate="body">
+      <p-card class="no-header-card">
+        <h3>{{hour}}</h3>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/thermometer.svg" class="weather-icons">
+          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[4], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[4], hour, hours).feels_like }}&deg;C</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/rain.svg" class="weather-icons">
+          <p class="ml-1">Precipitation: {{ extractDataByHour(days[4], hour, hours).precipitation}}%</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/gauge.svg" class="weather-icons">
+          <p class="ml-1">Pressure: {{ extractDataByHour(days[4], hour, hours).pressure }}hPa</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/wind.svg" class="weather-icons">
+          <p class="ml-1">Wind speed: {{ extractDataByHour(days[4], hour, hours).windspeed }}km/h</p>
+        </div>
+        <div class="flex align-items-center">
+          <img src="../../assets/icons/visibility.svg" class="weather-icons">
+          <p class="ml-1">Visibility: {{ extractDataByHour(days[4], hour, hours).visibility }}m</p>
+        </div>
+      </p-card>
+    </ng-template>
+  </p-carousel>
 </div>

@@ -11,9 +11,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FieldsetModule } from 'primeng/fieldset';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TabMenuModule } from 'primeng/tabmenu';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { CarouselModule } from 'primeng/carousel';
-
+import { AvatarModule } from 'primeng/avatar';
 
 
 
@@ -36,7 +36,8 @@ import { CarouselModule } from 'primeng/carousel';
     FieldsetModule,
     ReactiveFormsModule,
     TabMenuModule,
-    CarouselModule
+    CarouselModule,
+    AvatarModule
   ],
   providers: [],
   bootstrap: [AppComponent]
