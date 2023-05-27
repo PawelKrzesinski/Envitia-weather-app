@@ -1,6 +1,6 @@
 <div class="w-11 mx-auto my-8">
   <p-tabView (onChange)="dayChangeHandler($event)" class="">
-    <p-tabPanel *ngFor="let day of days" [header]="day.time">
+    <p-tabPanel *ngFor="let day of days" [header]="dailyWeatherData.time[day]">
         <p-fieldset [legend]="timezone" class="w-full h-35rem flex">
           <!-- INPUT FIELDS -->
           <form [formGroup]="locationForm" (submit)="getWeatherByLonLat()">
@@ -24,10 +24,10 @@
           </form>
           <!-- MAIN INFO -->
           <div class="daily-weather-card-inner font-light">
-            <div class="flex ml-4" *ngIf="day.current_temp">
-              <h2>Current temperature: {{day.current_temp}}&deg;C</h2>
+            <div class="flex ml-4">
+              <h2 *ngIf="activeIndex === 0">Temperature: {{ currentWeatherData.temperature }}&deg;C</h2>
               <p-avatar size="xlarge" [style]="{ 'background-color': '#A4E3F9' }" class="mx-4">
-                <img src={{day.weather_icon}}>
+                <img [src]='fetchWeatherIcon(currentWeatherData.weathercode)'>
               </p-avatar>
             </div>
             <div class="flex w-full justify-content-around">
@@ -37,11 +37,11 @@
               </div>
               <div class="flex align-items-center">
                 <img src="../../assets/icons/thermometer_min.svg" class="weather-icons mr-2">
-                <h3 class="mx-1">Min: {{day.temperature_2m_min}}&deg;C</h3>
+                <h3 class="mx-1">Min: {{dailyWeatherData.temperature_2m_min[day]}}&deg;C</h3>
               </div>
               <div class="flex align-items-center">
                 <img src="../../assets/icons/thermometer_max.svg" class="weather-icons mr-2">
-                <h3 class="mx-1">Max: {{day.temperature_2m_max}}&deg;C</h3>  
+                <h3 class="mx-1">Max: {{dailyWeatherData.temperature_2m_max[day]}}&deg;C</h3>  
               </div>
 
             </div>
@@ -49,12 +49,12 @@
               <div class="flex align-items-center">
                 <img src="../../assets/icons/arrow_up.svg" class="weather-icons-up">
                 <img src="../../assets/icons/sunset.svg" class="weather-icons">
-                <h3 class="mx-2">Sunrise: {{day.sunrise}}</h3>
+                <h3 class="mx-2">Sunrise: {{dailyWeatherData.sunrise[day]}}</h3>
               </div>
               <div class="flex align-items-center">
                 <img src="../../assets/icons/sunset.svg" class="weather-icons">
                 <img src="../../assets/icons/arrow_down.svg" class="weather-icons-down">
-                <h3 class="mx-2">Sunset: {{day.sunset}}</h3>
+                <h3 class="mx-2">Sunset: {{dailyWeatherData.sunset[day]}}</h3>
               </div>
             </div>
           </div>
@@ -100,139 +100,140 @@
 </div>
 <!-- HOURLY INFO CAROUSELS -->
 <div [ngSwitch]="selectedDay">
-  <p-carousel *ngSwitchCase="days[0]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+  <p-carousel *ngSwitchCase="hourlyWeatherData[0]" [value]="hours" [numVisible]="6" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
     <ng-template let-hour pTemplate="body">
       <p-card class="no-header-card border-noround bg-white">
         <h3>{{hour}}</h3>
         <div class="flex align-items-center">
           <img src="../../assets/icons/thermometer.svg" class="weather-icons">
-          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[0], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[0], hour, hours).feels_like }}&deg;C</p>
+          <p class="ml-1">Temp/Feels: {{ hourlyWeatherData[0].temperature_2m[hour] }}&deg;C/{{ hourlyWeatherData[0].apparent_temperature[hour] }}&deg;C</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/rain.svg" class="weather-icons">
-          <p class="ml-1">Precipitation: {{ extractDataByHour(days[0], hour, hours).precipitation}}%</p>
+          <p class="ml-1">Precipitation: {{ hourlyWeatherData[0].precipitation_probability[hour]}}%</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/gauge.svg" class="weather-icons">
-          <p class="ml-1">Pressure: {{ extractDataByHour(days[0], hour, hours).pressure }}hPa</p>
+          <p class="ml-1">Pressure: {{ hourlyWeatherData[0].surface_pressure[hour] }}hPa</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/wind.svg" class="weather-icons">
-          <p class="ml-1">Wind speed: {{ extractDataByHour(days[0], hour, hours).windspeed }}km/h</p>
+          <p class="ml-1">Wind speed: {{ hourlyWeatherData[0].windspeed_10m[hour] }}km/h</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/visibility.svg" class="weather-icons">
-          <p class="ml-1">Visibility: {{ extractDataByHour(days[0], hour, hours).visibility }}m</p>
+          <p class="ml-1">Visibility: {{ hourlyWeatherData[0].visibility[hour] }}m</p>
         </div>
       </p-card>
     </ng-template>
   </p-carousel>
-  <p-carousel *ngSwitchCase="days[1]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+  <p-carousel *ngSwitchCase="hourlyWeatherData[1]" [value]="hours" [numVisible]="6" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
     <ng-template let-hour pTemplate="body">
-      <p-card class="no-header-card">
+      <p-card class="no-header-card border-noround bg-white">
         <h3>{{hour}}</h3>
         <div class="flex align-items-center">
           <img src="../../assets/icons/thermometer.svg" class="weather-icons">
-          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[1], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[0], hour, hours).feels_like }}&deg;C</p>
+          <p class="ml-1">Temp/Feels: {{ hourlyWeatherData[1].temperature_2m[hour] }}&deg;C/{{ hourlyWeatherData[1].apparent_temperature[hour] }}&deg;C</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/rain.svg" class="weather-icons">
-          <p class="ml-1">Precipitation: {{ extractDataByHour(days[1], hour, hours).precipitation}}%</p>
+          <p class="ml-1">Precipitation: {{ hourlyWeatherData[1].precipitation_probability[hour]}}%</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/gauge.svg" class="weather-icons">
-          <p class="ml-1">Pressure: {{ extractDataByHour(days[1], hour, hours).pressure }}hPa</p>
+          <p class="ml-1">Pressure: {{ hourlyWeatherData[1].surface_pressure[hour] }}hPa</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/wind.svg" class="weather-icons">
-          <p class="ml-1">Wind speed: {{ extractDataByHour(days[1], hour, hours).windspeed }}km/h</p>
+          <p class="ml-1">Wind speed: {{ hourlyWeatherData[1].windspeed_10m[hour] }}km/h</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/visibility.svg" class="weather-icons">
-          <p class="ml-1">Visibility: {{ extractDataByHour(days[1], hour, hours).visibility }}m</p>
+          <p class="ml-1">Visibility: {{ hourlyWeatherData[1].visibility[hour] }}m</p>
         </div>
       </p-card>
     </ng-template>
   </p-carousel>
-  <p-carousel *ngSwitchCase="days[2]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+  <p-carousel *ngSwitchCase="hourlyWeatherData[2]" [value]="hours" [numVisible]="6" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
     <ng-template let-hour pTemplate="body">
-      <p-card class="no-header-card">
+      <p-card class="no-header-card border-noround bg-white">
         <h3>{{hour}}</h3>
         <div class="flex align-items-center">
           <img src="../../assets/icons/thermometer.svg" class="weather-icons">
-          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[2], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[0], hour, hours).feels_like }}&deg;C</p>
+          <p class="ml-1">Temp/Feels: {{ hourlyWeatherData[2].temperature_2m[hour] }}&deg;C/{{ hourlyWeatherData[2].apparent_temperature[hour] }}&deg;C</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/rain.svg" class="weather-icons">
-          <p class="ml-1">Precipitation: {{ extractDataByHour(days[2], hour, hours).precipitation}}%</p>
+          <p class="ml-1">Precipitation: {{ hourlyWeatherData[2].precipitation_probability[hour]}}%</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/gauge.svg" class="weather-icons">
-          <p class="ml-1">Pressure: {{ extractDataByHour(days[2], hour, hours).pressure }}hPa</p>
+          <p class="ml-1">Pressure: {{ hourlyWeatherData[2].surface_pressure[hour] }}hPa</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/wind.svg" class="weather-icons">
-          <p class="ml-1">Wind speed: {{ extractDataByHour(days[2], hour, hours).windspeed }}km/h</p>
+          <p class="ml-1">Wind speed: {{ hourlyWeatherData[2].windspeed_10m[hour] }}km/h</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/visibility.svg" class="weather-icons">
-          <p class="ml-1">Visibility: {{ extractDataByHour(days[2], hour, hours).visibility }}m</p>
+          <p class="ml-1">Visibility: {{ hourlyWeatherData[2].visibility[hour] }}m</p>
         </div>
       </p-card>
     </ng-template>
   </p-carousel>
-  <p-carousel *ngSwitchCase="days[3]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+  <p-carousel *ngSwitchCase="hourlyWeatherData[3]" [value]="hours" [numVisible]="6" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
     <ng-template let-hour pTemplate="body">
-      <p-card class="no-header-card">
+      <p-card class="no-header-card border-noround bg-white">
         <h3>{{hour}}</h3>
         <div class="flex align-items-center">
           <img src="../../assets/icons/thermometer.svg" class="weather-icons">
-          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[3], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[3], hour, hours).feels_like }}&deg;C</p>
+          <p class="ml-1">Temp/Feels: {{ hourlyWeatherData[3].temperature_2m[hour] }}&deg;C/{{ hourlyWeatherData[3].apparent_temperature[hour] }}&deg;C</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/rain.svg" class="weather-icons">
-          <p class="ml-1">Precipitation: {{ extractDataByHour(days[3], hour, hours).precipitation}}%</p>
+          <p class="ml-1">Precipitation: {{ hourlyWeatherData[3].precipitation_probability[hour]}}%</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/gauge.svg" class="weather-icons">
-          <p class="ml-1">Pressure: {{ extractDataByHour(days[3], hour, hours).pressure }}hPa</p>
+          <p class="ml-1">Pressure: {{ hourlyWeatherData[3].surface_pressure[hour] }}hPa</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/wind.svg" class="weather-icons">
-          <p class="ml-1">Wind speed: {{ extractDataByHour(days[3], hour, hours).windspeed }}km/h</p>
+          <p class="ml-1">Wind speed: {{ hourlyWeatherData[3].windspeed_10m[hour] }}km/h</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/visibility.svg" class="weather-icons">
-          <p class="ml-1">Visibility: {{ extractDataByHour(days[3], hour, hours).visibility }}m</p>
+          <p class="ml-1">Visibility: {{ hourlyWeatherData[3].visibility[hour] }}m</p>
         </div>
       </p-card>
     </ng-template>
   </p-carousel>
-  <p-carousel *ngSwitchCase="days[4]" [value]="hours" [numVisible]="8" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
+  <p-carousel *ngSwitchCase="hourlyWeatherData[4]" [value]="hours" [numVisible]="6" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
     <ng-template let-hour pTemplate="body">
-      <p-card class="no-header-card">
+      <p-card class="no-header-card border-noround bg-white">
         <h3>{{hour}}</h3>
         <div class="flex align-items-center">
           <img src="../../assets/icons/thermometer.svg" class="weather-icons">
-          <p class="ml-1">Temp/Feels: {{ extractDataByHour(days[4], hour, hours).temp }}&deg;C/{{ extractDataByHour(days[4], hour, hours).feels_like }}&deg;C</p>
+          <p class="ml-1">Temp/Feels: {{ hourlyWeatherData[4].temperature_2m[hour] }}&deg;C/{{ hourlyWeatherData[4].apparent_temperature[hour] }}&deg;C</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/rain.svg" class="weather-icons">
-          <p class="ml-1">Precipitation: {{ extractDataByHour(days[4], hour, hours).precipitation}}%</p>
+          <p class="ml-1">Precipitation: {{ hourlyWeatherData[4].precipitation_probability[hour]}}%</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/gauge.svg" class="weather-icons">
-          <p class="ml-1">Pressure: {{ extractDataByHour(days[4], hour, hours).pressure }}hPa</p>
+          <p class="ml-1">Pressure: {{ hourlyWeatherData[4].surface_pressure[hour] }}hPa</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/wind.svg" class="weather-icons">
-          <p class="ml-1">Wind speed: {{ extractDataByHour(days[4], hour, hours).windspeed }}km/h</p>
+          <p class="ml-1">Wind speed: {{ hourlyWeatherData[4].windspeed_10m[hour] }}km/h</p>
         </div>
         <div class="flex align-items-center">
           <img src="../../assets/icons/visibility.svg" class="weather-icons">
-          <p class="ml-1">Visibility: {{ extractDataByHour(days[4], hour, hours).visibility }}m</p>
+          <p class="ml-1">Visibility: {{ hourlyWeatherData[4].visibility[hour] }}m</p>
         </div>
       </p-card>
     </ng-template>
   </p-carousel>
+  
 </div>

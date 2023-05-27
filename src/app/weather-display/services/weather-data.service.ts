@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { Observable } from 'rxjs';
-import { WeatherData, TransformedWeatherDataByDay, TransformedWeatherDataByHour } from '../weather.model';
+import { CurrentWeatherDataByHour, CurrentWeatherData, MappedCurrentWeatherData, DailyWeatherData, HourlyWeatherData } from '../weather.model';
+import * as DataHandling from '../helpers/data-handling.helper';
 @Injectable({
   providedIn: 'root'
 })
@@ -31,75 +32,85 @@ export class WeatherDataService {
 
   constructor(private http: HttpClient){}
 
-  getAPIData(lon: string, lat: string): Observable<any>{
-    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=weathercode,temperature_2m,apparent_temperature,precipitation_probability,rain,showers,snowfall,surface_pressure,visibility,windspeed_10m,winddirection_10m,is_day&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&timezone=auto&current_weather=true&forecast_days=5`);
+  getCurrentData(lon: string, lat: string): Observable<any>{
+    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&current_weather=true`);
   }
 
-  mapApiDataToObject(data: WeatherData, days: TransformedWeatherDataByDay[], hours: string[]): TransformedWeatherDataByDay[] {
-    const modifiedDates = this.handleDates(data.daily.time);
-    const modifiedSunsetTime = this.handleTimes(data.daily.sunset)    
-    const modifiedSunriseTime = this.handleTimes(data.daily.sunrise)  
-    const hourlyData = JSON.parse(JSON.stringify(data.hourly)); //Creates a deep copy of the original array to prevent mutating it.
-    const tempMin = this.roundTheNumbers(data.daily.temperature_2m_min)
-    const tempMax = this.roundTheNumbers(data.daily.temperature_2m_max)
-    const readyData = days.map((day, index) => {
-      const icon = this.getWeatherIcons(day.weathercode);
-      return day = {
-        sunset: modifiedSunsetTime[index],
-        sunrise: modifiedSunriseTime[index],
-        time: modifiedDates[index],
-        temperature_2m_min: tempMin[index],
-        temperature_2m_max: tempMax[index],
-        weathercode: day.weathercode,
-        weather_icon: icon,
-        hourly: {
-          time: hourlyData.time.splice(0, hours.length),
-          temperature_2m: hourlyData.temperature_2m.splice(0, hours.length),
-          apparent_temperature: hourlyData.apparent_temperature.splice(0, hours.length),
-          precipitation_probability: hourlyData.precipitation_probability.splice(0, hours.length),
-          rain: hourlyData.rain.splice(0, hours.length),
-          showers: hourlyData.showers.splice(0, hours.length),
-          snowfall: hourlyData.snowfall.splice(0, hours.length),
-          surface_pressure: hourlyData.surface_pressure.splice(0, hours.length),
-          visibility: hourlyData.visibility.splice(0, hours.length),
-          windspeed_10m: hourlyData.windspeed_10m.splice(0, hours.length),
-          winddirection_10m: hourlyData.winddirection_10m.splice(0, hours.length),
-          is_day: hourlyData.is_day.splice(0, hours.length),
-          weathercode: hourlyData.weathercode.splice(0, hours.length)
-        }
-      }
-    })
-    return readyData;
+  getDailyData(lon: string, lat: string): Observable<any>{
+    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=5&timezone=auto`);
   }
 
-  handleDates(data: string[]): string[] {
-    return data.map((date) => {
-      const newDate = date.split('-');
-      return `${newDate[2]}/${newDate[1]}`
-    });
+  getHourlyData(lon: string, lat: string): Observable<any>{
+    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=weathercode,temperature_2m,apparent_temperature,precipitation_probability,rain,showers,snowfall,surface_pressure,visibility,windspeed_10m,winddirection_10m,is_day&forecast_days=5`);
   }
-  handleTimes(data: string[]): string[] { 
-    return data.map((date) => date.split('T')[1]);
-  }
-  extractDataByHour(day: TransformedWeatherDataByDay, hour: string, hours: string[]): TransformedWeatherDataByHour {
-    const index = hours.indexOf(hour);
+
+  mapCurrentWeatherData(data: CurrentWeatherData & { timezone: string}): MappedCurrentWeatherData {
+    const current = data.current_weather;
     return {
-      feels_like: Math.round(day.hourly.apparent_temperature[index]),
-      temp: Math.round(day.hourly.temperature_2m[index]),
-      precipitation: day.hourly.precipitation_probability[index],
-      pressure: Math.round(day.hourly.surface_pressure[index]),
-      windspeed: Math.round(day.hourly.windspeed_10m[index]),
-      wind_direction: day.hourly.winddirection_10m[index],
-      visibility: day.hourly.visibility[index],
-      is_day: day.hourly.is_day[index],
-      rain: day.hourly.rain[index],
-      showers: day.hourly.showers[index],
-      snowfall: day.hourly.snowfall[index],
+      ...current,
+      temperature: Math.round(current.temperature),
+      windspeed: Math.round(current.windspeed),
+      time: current.time.split('T')[1],
+      timezone: data.timezone,
     }
   }
 
-  roundTheNumbers(data: number[]): number[] {
-    return data.map((temp) => Math.round(temp));
+  mapDailyWeatherData(data: DailyWeatherData): DailyWeatherData{
+    const splitDates = DataHandling.changeDateFormat(data.time)
+    const splitSunrises = DataHandling.splitTimeFromDate(data.sunrise);
+    const splitSunsets = DataHandling.splitTimeFromDate(data.sunset);
+    const minTempRounded = DataHandling.roundTheNumbers(data.temperature_2m_min)
+    const maxTempRounded = DataHandling.roundTheNumbers(data.temperature_2m_max)
+    return {
+        sunrise: splitSunrises,
+        sunset: splitSunsets,
+        temperature_2m_max: maxTempRounded,
+        temperature_2m_min: minTempRounded,
+        time: splitDates,
+        weathercode: data.weathercode
+    }
+  }
+
+  mapHourlyWeatherData(data: HourlyWeatherData, days: HourlyWeatherData[], hours: string[]): HourlyWeatherData[] {
+    const hourlyData = JSON.parse(JSON.stringify(data)); //Creates a deep copy of the original array to prevent mutating it.
+    const roundedTemperature = DataHandling.roundTheNumbers(hourlyData.temperature_2m)
+    const roundedFeelsLike = DataHandling.roundTheNumbers(hourlyData.apparent_temperature ) 
+    const roundedPressure = DataHandling.roundTheNumbers(hourlyData.surface_pressure) 
+    const roundedWindSpeed = DataHandling.roundTheNumbers(hourlyData.windspeed_10m) 
+    return days.map((day) => {
+      return day = {
+        time: hourlyData.time.splice(0, hours.length),
+        temperature_2m: roundedTemperature.splice(0, hours.length),
+        apparent_temperature: roundedFeelsLike.splice(0, hours.length),
+        precipitation_probability: hourlyData.precipitation_probability.splice(0, hours.length),
+        rain: hourlyData.rain.splice(0, hours.length),
+        showers: hourlyData.showers.splice(0, hours.length),
+        snowfall: hourlyData.snowfall.splice(0, hours.length),
+        surface_pressure: roundedPressure.splice(0, hours.length),
+        visibility: hourlyData.visibility.splice(0, hours.length),
+        windspeed_10m: roundedWindSpeed.splice(0, hours.length),
+        winddirection_10m: hourlyData.winddirection_10m.splice(0, hours.length),
+        is_day: hourlyData.is_day.splice(0, hours.length),
+        weathercode: hourlyData.weathercode.splice(0, hours.length)
+      }
+    })
+  }
+
+  extractDataByHour(day: HourlyWeatherData, hour: string, hours: string[]): CurrentWeatherDataByHour {
+    const index = hours.indexOf(hour);
+    return {
+      feels_like: Math.round(day.apparent_temperature[index]),
+      temp: Math.round(day.temperature_2m[index]),
+      precipitation: day.precipitation_probability[index],
+      pressure: Math.round(day.surface_pressure[index]),
+      windspeed: Math.round(day.windspeed_10m[index]),
+      wind_direction: day.winddirection_10m[index],
+      visibility: day.visibility[index],
+      is_day: day.is_day[index],
+      rain: day.rain[index],
+      showers: day.showers[index],
+      snowfall: day.snowfall[index],
+    }
   }
 
   getWeatherIcons(code: number): string {
