@@ -3,11 +3,71 @@ input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
 input[type=number]{
   -moz-appearance: textfield;
   appearance: textfield;
 }
 
-.no-header-card .p-card-header {
-  display: none;
+::ng-deep .p-fieldset{
+  width: 100%;
+}
+
+::ng-deep .p-fieldset .p-fieldset-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+::ng-deep .p-tabview .p-tabview-nav{
+  background-color: #f8f9fa;
+}
+
+::ng-deep .no-header-card .p-card-content {
+  padding-top: 0;
+}
+
+.no-header-card h3{
+  margin-top: 0;
+}
+
+::ng-deep .daily-weather-card-inner {
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep .extra-info .p-card-content{
+  display: flex;
+}
+
+::ng-deep .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button{
+  background-color: purple !important;
+}
+::ng-deep .carousel-prev-icon {
+
+  width: 30px !important;
+  height: 30px !important;
+}
+::ng-deep .p-carousel-next,
+::ng-deep .p-carousel-prev {
+  padding: 30px !important;
+  box-shadow: 0px 0px 5px black;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+::ng-deep .p-carousel-next:hover,
+::ng-deep .p-carousel-prev:hover {
+  background-color: rgba(255, 255, 255, 0.5) !important;
+}
+.weather-icons {
+  width: 30px;
+  height: 30px;
+}
+.weather-icons-up{
+  width: 15px;
+  height: 15px;
+}
+.weather-icons-down{
+  width: 15px;
+  height: 15px;
 }

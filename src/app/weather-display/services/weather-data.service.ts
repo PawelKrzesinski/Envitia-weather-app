@@ -9,16 +9,16 @@ export class WeatherDataService {
   responsiveOptions = [
     {
         breakpoint: '1564px',
-        numVisible: 6,
-        numScroll: 3
-    },
-    {
-        breakpoint: '1200px',
         numVisible: 4,
         numScroll: 4
     },
     {
-        breakpoint: '769px',
+        breakpoint: '1300px',
+        numVisible: 3,
+        numScroll: 3
+    },
+    {
+        breakpoint: '900px',
         numVisible: 2,
         numScroll: 2
     },
@@ -40,16 +40,18 @@ export class WeatherDataService {
     const modifiedSunsetTime = this.handleTimes(data.daily.sunset)    
     const modifiedSunriseTime = this.handleTimes(data.daily.sunrise)  
     const hourlyData = JSON.parse(JSON.stringify(data.hourly)); //Creates a deep copy of the original array to prevent mutating it.
-    console.log('CHECKING DATA1 :', data)
+    const tempMin = this.roundTheNumbers(data.daily.temperature_2m_min)
+    const tempMax = this.roundTheNumbers(data.daily.temperature_2m_max)
     const readyData = days.map((day, index) => {
-      if(day.current_temp) day.current_temp = data.current_weather.temperature;
+      const icon = this.getWeatherIcons(day.weathercode);
       return day = {
         sunset: modifiedSunsetTime[index],
         sunrise: modifiedSunriseTime[index],
         time: modifiedDates[index],
-        temperature_2m_max: data.daily.temperature_2m_max[index],
-        temperature_2m_min: data.daily.temperature_2m_min[index],
-        weathercode: data.daily.weathercode[index],
+        temperature_2m_min: tempMin[index],
+        temperature_2m_max: tempMax[index],
+        weathercode: day.weathercode,
+        weather_icon: icon,
         hourly: {
           time: hourlyData.time.splice(0, hours.length),
           temperature_2m: hourlyData.temperature_2m.splice(0, hours.length),
@@ -79,15 +81,15 @@ export class WeatherDataService {
   handleTimes(data: string[]): string[] { 
     return data.map((date) => date.split('T')[1]);
   }
-  getSelectedDayData(day: TransformedWeatherDataByDay, hour: string, hours: string[]): TransformedWeatherDataByHour {
+  extractDataByHour(day: TransformedWeatherDataByDay, hour: string, hours: string[]): TransformedWeatherDataByHour {
     const index = hours.indexOf(hour);
     return {
-      feelsLike: Math.round(day.hourly.apparent_temperature[index]),
+      feels_like: Math.round(day.hourly.apparent_temperature[index]),
       temp: Math.round(day.hourly.temperature_2m[index]),
       precipitation: day.hourly.precipitation_probability[index],
       pressure: Math.round(day.hourly.surface_pressure[index]),
       windspeed: Math.round(day.hourly.windspeed_10m[index]),
-      winddirection: day.hourly.winddirection_10m[index],
+      wind_direction: day.hourly.winddirection_10m[index],
       visibility: day.hourly.visibility[index],
       is_day: day.hourly.is_day[index],
       rain: day.hourly.rain[index],
@@ -96,7 +98,11 @@ export class WeatherDataService {
     }
   }
 
-  getWeatherIcons(code: number) {
+  roundTheNumbers(data: number[]): number[] {
+    return data.map((temp) => Math.round(temp));
+  }
+
+  getWeatherIcons(code: number): string {
     switch (code) {
       case 0:
         return 'https://openweathermap.org/img/wn/01d@2x.png';

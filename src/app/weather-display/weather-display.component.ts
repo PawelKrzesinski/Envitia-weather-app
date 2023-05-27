@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { WeatherDataService } from './services/weather-data.service';
 import { Subscription } from 'rxjs';
-import { WeatherData, TransformedWeatherDataByDay, TransformedWeatherDataByHour } from './weather.model';
+import { WeatherData, TransformedWeatherDataByDay, TransformedWeatherDataByHour, ResponsiveSettings } from './weather.model';
 
 @Component({
   selector: 'app-weather-display',
@@ -23,7 +23,8 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
     time: '',
     temperature_2m_max: 1,
     temperature_2m_min: 1,
-    weathercode: 1,
+    weathercode: 0,
+    weather_icon: '',
     hourly: {
       temperature_2m: [],
       apparent_temperature: [],
@@ -43,6 +44,20 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
   days: TransformedWeatherDataByDay[] = [this.day, this.day, this.day, this.day, this.day];
   selectedDay = this.days[0];
   activeIndex: number = 0;
+  currentHourly:TransformedWeatherDataByHour = {
+    feels_like: 0,
+    temp: 0,
+    precipitation: 0,
+    pressure: 0,
+    windspeed: 0,
+    wind_direction: 0,
+    visibility: 0,
+    is_day: 0,
+    rain: 0,
+    showers: 0,
+    snowfall: 0,
+  }
+  weatherIcon: string = '';
   locationForm: FormGroup;
   subscription: Subscription | undefined;
   constructor(private weatherDataService: WeatherDataService){
@@ -53,9 +68,11 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
   }
   ngOnInit(): void {
     this.subscription = this.weatherDataService.getAPIData('-3.53', '50.72').subscribe((data: WeatherData) => {
-      console.log('DATA: ', data)
       this.days = this.weatherDataService.mapApiDataToObject(data, this.days, this.hours);
       this.setTempAndTimezone(data);
+      this.currentHourly = this.extractDataByHour(this.days[0], this.getCurrentTime(), this.hours)
+
+      console.log('DATA: ', data)
     });
     this.responsiveOptions = this.setResponsiveOptions();
   }
@@ -78,31 +95,45 @@ export class WeatherDisplayComponent implements OnInit, OnDestroy {
         if (data) {
           this.days = this.weatherDataService.mapApiDataToObject(data, this.days, this.hours);
           this.setTempAndTimezone(data);
+          this.currentHourly = this.extractDataByHour(this.days[0], this.getCurrentTime(), this.hours);
         }
       })
-    } else {
-      // Handle form validation errors
     }
   }
-  dayChangeHandler(event: any){
+  
+  dayChangeHandler(event: any): void{
     this.selectedDay = this.days[event.index];
   }
   
-  getSelectedDayData(day: TransformedWeatherDataByDay, hour: string, hours: string[]){
-    return this.weatherDataService.getSelectedDayData(day, hour, hours);
+  extractDataByHour(day: TransformedWeatherDataByDay, hour: string, hours: string[]): TransformedWeatherDataByHour{
+    return this.weatherDataService.extractDataByHour(day, hour, hours);
   }
 
-  setTempAndTimezone(data: WeatherData){
+  someMethod() {
+    const days = this.days;
+    days.forEach((day) => {
+      const hourlyData: TransformedWeatherDataByHour[] = [];
+    })
+  }
+
+  setTempAndTimezone(data: WeatherData): void{
     this.selectedDay = this.days[0];
-    this.days[0].current_temp = data.current_weather.temperature;
+    this.days[0].current_temp = Math.round(data.current_weather.temperature);
     this.timezone = data.timezone;
   }
-  setResponsiveOptions() {
+
+  setResponsiveOptions(): ResponsiveSettings[] {
     return this.weatherDataService.responsiveOptions;
   }
 
-  fetchWeatherIcon(code: number){
+  fetchWeatherIcon(code: number): string{
+    console.log("CODE: ", code)
     return this.weatherDataService.getWeatherIcons(code)
   }
 
+  getCurrentTime(): string{
+    const date = new Date()
+    let hour = date.getHours().toString();
+    return `${hour}:00`;
+  }
 }
