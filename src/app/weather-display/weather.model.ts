@@ -1,24 +1,3 @@
-
-export type CurrentWeatherData = {
-  current_weather: {
-    is_day: number,
-    temperature: number,
-    time: string,
-    winddirection: number,
-    windspeed: number,
-    weathercode: number,
-  }
-}
-export type MappedCurrentWeatherData = {
-  is_day: number,
-  temperature: number,
-  time: string,
-  winddirection: number,
-  windspeed: number,
-  weathercode: number,
-  timezone: string,
-}
-
 export type DailyWeatherData = {
   time: string[],
   sunrise: string[],
@@ -26,6 +5,9 @@ export type DailyWeatherData = {
   temperature_2m_max: number[],
   temperature_2m_min: number[],
   weathercode: number[],
+  rain_sum: number[],
+  winddirection_10m_dominant: number[],
+  windspeed_10m_max: number[],
 }
 
 export type HourlyWeatherData = {

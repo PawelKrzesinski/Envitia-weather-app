@@ -1,29 +1,3 @@
-export const day = {
-    temperature_2m: [],
-    apparent_temperature: [],
-    is_day: [],
-    precipitation_probability: [],
-    surface_pressure: [],
-    windspeed_10m: [],
-    winddirection_10m: [],
-    visibility: [],
-    time: [],
-    rain: [],
-    showers: [],
-    snowfall: [],
-    weathercode: [],
-  }
-
-export const currentWeatherData = {
-    is_day: 0,
-    temperature: 0,
-    time: '',
-    timezone: '',
-    weathercode: 0,
-    winddirection: 0,
-    windspeed: 0,
-}
-
 export const dailyWeatherData = {
     sunrise: [],
     sunset: [],

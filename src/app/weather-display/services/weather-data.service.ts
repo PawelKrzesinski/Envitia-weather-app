@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { Observable } from 'rxjs';
-import { CurrentWeatherDataByHour, CurrentWeatherData, MappedCurrentWeatherData, DailyWeatherData, HourlyWeatherData } from '../weather.model';
+import { CurrentWeatherDataByHour, DailyWeatherData, HourlyWeatherData } from '../weather.model';
 import * as DataHandling from '../helpers/data-handling.helper';
 @Injectable({
   providedIn: 'root'
@@ -37,48 +37,43 @@ export class WeatherDataService {
   }
 
   getDailyData(lon: string, lat: string): Observable<any>{
-    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=5&timezone=auto`);
+    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=rain_sum,windspeed_10m_max,winddirection_10m_dominant,weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=5&timezone=auto`);
   }
 
   getHourlyData(lon: string, lat: string): Observable<any>{
     return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=weathercode,temperature_2m,apparent_temperature,precipitation_probability,rain,showers,snowfall,surface_pressure,visibility,windspeed_10m,winddirection_10m,is_day&forecast_days=5`);
   }
 
-  mapCurrentWeatherData(data: CurrentWeatherData & { timezone: string}): MappedCurrentWeatherData {
-    const current = data.current_weather;
-    return {
-      ...current,
-      temperature: Math.round(current.temperature),
-      windspeed: Math.round(current.windspeed),
-      time: current.time.split('T')[1],
-      timezone: data.timezone,
-    }
-  }
-
   mapDailyWeatherData(data: DailyWeatherData): DailyWeatherData{
     const splitDates = DataHandling.changeDateFormat(data.time)
     const splitSunrises = DataHandling.splitTimeFromDate(data.sunrise);
     const splitSunsets = DataHandling.splitTimeFromDate(data.sunset);
-    const minTempRounded = DataHandling.roundTheNumbers(data.temperature_2m_min)
-    const maxTempRounded = DataHandling.roundTheNumbers(data.temperature_2m_max)
+    const minTempRounded = DataHandling.roundTheNumbers(data.temperature_2m_min);
+    const maxTempRounded = DataHandling.roundTheNumbers(data.temperature_2m_max);
+    const maxWindSpeed = DataHandling.roundTheNumbers(data.windspeed_10m_max);
     return {
         sunrise: splitSunrises,
         sunset: splitSunsets,
         temperature_2m_max: maxTempRounded,
         temperature_2m_min: minTempRounded,
         time: splitDates,
-        weathercode: data.weathercode
+        weathercode: data.weathercode,
+       windspeed_10m_max: maxWindSpeed,
+       winddirection_10m_dominant: data.winddirection_10m_dominant ,
+       rain_sum: data.rain_sum,
     }
   }
 
-  mapHourlyWeatherData(data: HourlyWeatherData, days: HourlyWeatherData[], hours: string[]): HourlyWeatherData[] {
+  mapHourlyWeatherData(data: HourlyWeatherData, hours: string[]): HourlyWeatherData[] {
+    const day: HourlyWeatherData = {} as HourlyWeatherData;
+    const days: HourlyWeatherData[] = [day, day, day, day, day];
     const hourlyData = JSON.parse(JSON.stringify(data)); //Creates a deep copy of the original array to prevent mutating it.
     const roundedTemperature = DataHandling.roundTheNumbers(hourlyData.temperature_2m)
     const roundedFeelsLike = DataHandling.roundTheNumbers(hourlyData.apparent_temperature ) 
     const roundedPressure = DataHandling.roundTheNumbers(hourlyData.surface_pressure) 
     const roundedWindSpeed = DataHandling.roundTheNumbers(hourlyData.windspeed_10m) 
-    return days.map((day) => {
-      return day = {
+    return days.map((item) => {
+      return item = {
         time: hourlyData.time.splice(0, hours.length),
         temperature_2m: roundedTemperature.splice(0, hours.length),
         apparent_temperature: roundedFeelsLike.splice(0, hours.length),
