@@ -255,7 +255,9 @@ h2, h3 {
   }
 }
 @media only screen and (min-width: 1440px) {
-
+  .main-content {
+    justify-content: space-evenly;
+  }
   .p-tabview-nav{
     font-size: 18px;
   }
@@ -263,19 +265,16 @@ h2, h3 {
     padding: 24px !important;
   }
   .daily-forecast {
-    margin-left: 5rem !important;
+    margin-left: 0 !important;
     max-width: 700px;
   }
- 
   .p-fieldset-legend {
     font-size: 16px;
   }
-
   .daily-weather-card-inner {
     font-size: 16px;
     margin-left: 2rem;
   }
-
   .weather-icons-container h2,
   .weather-icons-container h3{
     font-weight: 500;
@@ -284,11 +283,9 @@ h2, h3 {
     width: 60px;
     height: 60px;
   }
-
   .location-form .p-button{
     padding: 16px 24px;
   }
-  
   .error-message{
     font-size: 14px;
   }
@@ -300,7 +297,8 @@ h2, h3 {
     font-size: 16px;
   }
   .current-info{
-    margin-left: 2rem;
+    margin-left: 0;
+    margin-right: 0;
   }
   .current-info h2{
     font-size: 32px;
