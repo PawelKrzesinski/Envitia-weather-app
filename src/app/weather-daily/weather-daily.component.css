@@ -1,0 +1,163 @@
+.p-tabview-nav{
+  background-color: #f8f9fa;
+}
+
+@media only screen and (min-width: 320px) {
+  .p-tabview-nav{
+    font-size: 14px;
+  }
+  .p-tabview-panels {
+    padding: 16px 4px !important;
+  }
+  .p-tabview-panel {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .daily-forecast {
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+    margin-bottom: 2rem;
+    width: 100%;
+    max-width: 550px;
+  }
+  .daily-forecast-inner{
+    margin: 0 !important;
+    justify-content: center !important;
+  }
+  .p-fieldset{
+    width: 100%;
+    padding: 16px;
+  }
+  .p-fieldset-legend {
+    font-size: 14px;
+  }
+  .p-fieldset .p-fieldset-content {
+    max-width: 450px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+  .daily-weather-card-inner {
+    font-size: 10px;
+    white-space: break-spaces !important;
+    width: 100%;
+    display: flex;
+  }
+  .main-info-sun-pos{
+    justify-content: center !important;
+  }
+  .weather-icon-main {
+    width: 40px;
+    height: 40px;
+    background-color: #A4E3F9;
+    border-radius: 6px;
+    margin-left: 1rem !important;
+  }
+  .location-form {
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    margin-top: 16px;
+  }
+  .location-form .p-button{
+    font-size: 12px;
+    padding: 12px 16px;
+  }
+  .latitude-container,
+  .longitude-container{
+    margin: 0 0 16px 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .error-message{
+    font-size: 10px;
+    color: red;
+  }
+  .p-inputtext.lat-lon-inputs {
+    width: 175px;
+    padding: 8px;
+  }
+  .lat-lon-labels{
+    transform: translateY(4px) !important;
+  }
+  .p-inputtext.lat-lon-inputs,
+  .lat-lon-labels{
+    font-size: 12px;
+  }
+  .p-inputtext.lat-lon-inputs:not(:placeholder-shown) + .lat-lon-labels,
+  .p-inputtext.lat-lon-inputs:focus + .lat-lon-labels{
+    transform: translateY(0px) !important;
+  }
+}
+@media only screen and (min-width: 576px) {
+  .daily-weather-card-inner{
+    margin-top: 0 !important;
+  }
+  .p-tabview-panels {
+    padding: 16px !important;
+  }
+  .p-fieldset .p-fieldset-content {
+    max-width: 700px;
+  }
+  .location-form {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 0;
+  }
+  .latitude-container,
+  .longitude-container{
+    margin: 0 8px !important;
+  }
+
+  .location-form .p-button{
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+}
+@media only screen and (min-width: 1024px) {
+  .main-content {
+    flex-direction: row;
+    justify-content: center;
+  }
+  .daily-weather-card-inner {
+    margin-bottom: 1rem !important;
+  }
+}
+
+@media only screen and (min-width: 1440px) {
+  .main-content {
+    justify-content: space-evenly;
+  }
+  .p-tabview-nav{
+    font-size: 18px;
+  }
+  .p-tabview-panels {
+    padding: 24px !important;
+  }
+  .daily-forecast {
+    margin-left: 0 !important;
+    max-width: 700px;
+  }
+  .p-fieldset-legend {
+    font-size: 16px;
+  }
+  .daily-weather-card-inner {
+    font-size: 16px;
+  }
+  .location-form .p-button{
+    padding: 16px 24px;
+  }
+  .error-message{
+    font-size: 14px;
+  }
+  .p-inputtext.lat-lon-inputs{
+    padding: 12px 24px;
+  }
+  .p-inputtext.lat-lon-inputs,
+  .lat-lon-labels{
+    font-size: 16px;
+  }
+}

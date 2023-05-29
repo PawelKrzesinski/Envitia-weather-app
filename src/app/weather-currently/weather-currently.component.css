@@ -1,0 +1,81 @@
+.current-info div{
+  border-radius: 6px;
+}
+
+@media only screen and (min-width: 320px) {
+  .current-info {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .current-info .p-card-body {
+    padding: 12px 16px;
+  }
+  .current-info .p-card-content{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 8px;
+  }
+  .current-info h2{
+    font-size: 20px;
+    margin-top: 8px;
+    margin-bottom: 24px;
+  }
+  .current-temps {
+    margin-bottom: 1rem;
+  }
+  .current-extras {
+    margin-top: 8px;
+    margin-bottom: 8px;
+  }
+  .current-info h3, .current-extras {
+    font-size: 16px;
+  }
+  .current-info-details{
+    flex-direction: column;
+  }
+  .current-info-details .second-part {
+    margin-left: 0 !important;
+  }
+}
+@media only screen and (min-width: 576px) {
+  .current-info .p-card-body {
+    padding: 16px 24px;
+  }
+  .current-info-details{
+    flex-direction: row;
+  }
+  .current-info-details .second-part {
+    margin-left: 2rem !important;
+  }
+}
+@media only screen and (min-width: 1024px) {
+  .weather-currently {
+    margin-left: 2rem;
+  }
+}
+
+@media only screen and (min-width: 1440px) {
+  .weather-currently {
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .current-info h2{
+    font-size: 32px;
+    font-weight: 500;
+  }
+  .current-temps {
+    margin-bottom: 2rem;
+  }
+  .current-temps h3 {
+    font-size: 24px;
+    font-weight: 500;
+  }
+  .current-info .p-card-body {
+    padding: 24px 32px;
+  }
+  .current-extras{
+    font-size: 20px;
+  }
+}

@@ -1,13 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Observable, Subscription, distinctUntilChanged, map, switchMap, take, tap } from 'rxjs';
+import { Observable, Subscription, map } from 'rxjs';
 import { WeatherDataService } from '../services/weather-data.service';
-import { DailyWeatherData, DailyWeatherDataWithTimezone, HourlyWeatherData } from '../weather-display/weather.model';
+import { DailyWeatherData, DailyWeatherDataWithTimezone } from '../weather-display/weather.model';
 import * as DataHandling from '../helpers/data-handling.helper';
 @Component({
   selector: 'app-weather-daily',
   templateUrl: './weather-daily.component.html',
-  styleUrls: ['./weather-daily.component.css']
+  styleUrls: ['./weather-daily.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class WeatherDailyComponent implements OnInit {
   timezone: string = '';

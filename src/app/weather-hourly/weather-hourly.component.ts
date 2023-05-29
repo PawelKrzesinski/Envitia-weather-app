@@ -1,12 +1,13 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { BehaviorSubject, Observable, Subscription, filter } from 'rxjs';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
+import { Observable, Subscription, filter } from 'rxjs';
 import { HourlyWeatherData, ResponsiveSettings } from '../weather-display/weather.model';
 import { WeatherDataService } from '../services/weather-data.service';
 
 @Component({
   selector: 'app-weather-hourly',
   templateUrl: './weather-hourly.component.html',
-  styleUrls: ['./weather-hourly.component.css']
+  styleUrls: ['./weather-hourly.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class WeatherHourlyComponent implements OnInit, OnDestroy {
   hourlyWeatherData$: Observable<HourlyWeatherData> | undefined;

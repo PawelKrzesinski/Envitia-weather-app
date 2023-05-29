@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 import { Subscription, filter } from 'rxjs';
 import { WeatherDataService } from '../services/weather-data.service';
 import { HourlyWeatherData, CurrentWeatherDataByHour } from '../weather-display/weather.model';
@@ -6,7 +6,8 @@ import * as DefaultData from '../helpers/data-default-storage.helper';
 @Component({
   selector: 'app-weather-currently',
   templateUrl: './weather-currently.component.html',
-  styleUrls: ['./weather-currently.component.css']
+  styleUrls: ['./weather-currently.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class WeatherCurrentlyComponent implements OnInit, OnDestroy{
   subscription: Subscription | undefined;
