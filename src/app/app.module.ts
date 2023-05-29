@@ -14,6 +14,7 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { RouterModule } from '@angular/router';
 import { CarouselModule } from 'primeng/carousel';
 import { AvatarModule } from 'primeng/avatar';
+import { WeatherDailyComponent } from './weather-daily/weather-daily.component';
 
 
 
@@ -22,6 +23,7 @@ import { AvatarModule } from 'primeng/avatar';
   declarations: [
     AppComponent,
     WeatherDisplayComponent,
+    WeatherDailyComponent,
   ],
   imports: [
     RouterModule.forRoot([]),

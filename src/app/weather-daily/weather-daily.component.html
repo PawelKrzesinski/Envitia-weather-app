@@ -1,0 +1,58 @@
+<p-tabView (onChange)="dayChangeHandler($event)" class="mr-2 ml-8 daily-forecast" >
+  <p-tabPanel *ngFor="let day of days" [header]="dates[day]">
+      <p-fieldset [legend]="timezone" class="h-35rem flex mx-5 mb-4 daily-forecast-inner">
+        <!-- INPUT FIELDS -->
+        <div class="error-placeholder" *ngIf="(lon?.invalid && (lon?.dirty || lon?.touched)) || (lat?.invalid && (lat?.dirty || lat?.touched))">
+          <p class="error-message">
+            Both fields are required. <br/>
+             - Latitude must be a number between -90 and 90. Two decimal places allowed. <br/>
+             - Longitude must be a number between -180 and 180. Two decimal places allowed. <br/>
+          </p>
+        </div>
+        <form [formGroup]="locationForm" (submit)="getWeatherByLonLat()" class="location-form">
+          <span class="p-float-label my-4 longitude-container">
+            <input type="number" id="lon" class="p-inputtext-sm lat-lon-inputs" pInputText formControlName="lon" placeholder=" "/>  
+            <label class="lat-lon-labels" htmlFor="lon">Longitude*</label>
+          </span>
+          <span class="p-float-label my-2 latitude-container">
+            <input type="number" id="lat" class="p-inputtext-sm lat-lon-inputs" pInputText formControlName="lat" placeholder=" "/>  
+            <label class="lat-lon-labels" htmlFor="label">Latitude*</label>
+          </span>
+          <p-button (onClick)="getWeatherByLonLat()" type="submit" [disabled]="locationForm.invalid">Search</p-button>
+        </form>
+        <!-- MAIN INFO -->
+        <div class="daily-weather-card-inner font-light flex flex-column align-items-center mt-4" *ngIf="(dailyWeatherData$ | async) as dailyWeatherData">
+          <div class="flex align-items-center ml-4 weather-icons-container">
+            <div class="flex align-items-center weather-icons-container">
+              <img src="../../assets/icons/thermometer.svg" class="weather-icons-big mr-2">
+              <h2 class="mx-1">Min: {{dailyWeatherData.temperature_2m_min[day]}}&deg;C</h2>
+            </div>
+            <div class="flex align-items-center ml-4 weather-icons-container">
+              <h2 class="mx-1">Max: {{dailyWeatherData.temperature_2m_max[day]}}&deg;C</h2>  
+            </div>
+            <img class="weather-icon-main" [src]='fetchWeatherIcon(dailyWeatherData.weathercode[day])'>
+          </div>
+
+          <div class="flex justify-content-center">
+            <div class="flex align-items-center weather-icons-container">
+              <img src="../../assets/icons/arrow_up.svg" class="weather-icons" [ngStyle]="{ transform: 'rotate(' + dailyWeatherData.winddirection_10m_dominant[day] + 'deg)' }">
+              <h3 class="ml-2">Dominant wind speed: {{ dailyWeatherData.windspeed_10m_max[day] }}km/h</h3>
+            </div>
+          </div>
+          <div class="flex w-full main-info-sun-pos">
+            <div class="flex align-items-center weather-icons-container">
+              <img src="../../assets/icons/arrow_up.svg" class="weather-icons-up">
+              <img src="../../assets/icons/sunset.svg" class="weather-icons">
+              <h3 class="mx-2">Sunrise: {{dailyWeatherData.sunrise[day]}}</h3>
+            </div>
+            <div class="flex align-items-center weather-icons-container">
+              <img src="../../assets/icons/sunset.svg" class="weather-icons">
+              <img src="../../assets/icons/arrow_down.svg" class="weather-icons-down">
+              <h3 class="mx-2">Sunset: {{dailyWeatherData.sunset[day]}}</h3>
+            </div>
+          </div>
+        </div>
+        
+      </p-fieldset>
+  </p-tabPanel>
+</p-tabView>

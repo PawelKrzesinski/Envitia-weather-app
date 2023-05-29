@@ -9,7 +9,10 @@ export type DailyWeatherData = {
   winddirection_10m_dominant: number[],
   windspeed_10m_max: number[],
 }
-
+export type DailyWeatherDataWithTimezone = {
+  daily: DailyWeatherData,
+  timezone: string,
+}
 export type HourlyWeatherData = {
   time: string[],
   temperature_2m: number[],

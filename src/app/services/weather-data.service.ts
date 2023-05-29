@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
-import { Observable } from 'rxjs';
-import { CurrentWeatherDataByHour, DailyWeatherData, HourlyWeatherData } from '../weather.model';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { CurrentWeatherDataByHour, DailyWeatherData, DailyWeatherDataWithTimezone, HourlyWeatherData } from '../weather-display/weather.model';
 import * as DataHandling from '../helpers/data-handling.helper';
 @Injectable({
   providedIn: 'root'
 })
 export class WeatherDataService {
+  private dailyDataSubject: BehaviorSubject<DailyWeatherDataWithTimezone> = new BehaviorSubject<DailyWeatherDataWithTimezone>({} as DailyWeatherDataWithTimezone);
+  public dailyData$: Observable<DailyWeatherDataWithTimezone> = this.dailyDataSubject.asObservable();
+
+  private hourlyDataSubject: BehaviorSubject<HourlyWeatherData> = new BehaviorSubject<HourlyWeatherData>({} as HourlyWeatherData);
+  public hourlyData$: Observable<HourlyWeatherData> = this.hourlyDataSubject.asObservable();
+
   responsiveOptions = [
     {
         breakpoint: '1564px',
@@ -29,19 +35,34 @@ export class WeatherDataService {
         numScroll: 1,
     }
   ];
-
+  hours: string[] = [
+    '00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00',
+    '08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00',
+    '16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00',
+  ];
   constructor(private http: HttpClient){}
 
-  getCurrentData(lon: string, lat: string): Observable<any>{
-    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&current_weather=true`);
+  // getCurrentData(lon: string, lat: string): Observable<any>{
+  //   return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&current_weather=true`);
+  // }
+
+  getDailyData(lon: string, lat: string): Observable<DailyWeatherDataWithTimezone>{
+    return this.http.get(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=rain_sum,windspeed_10m_max,winddirection_10m_dominant,weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=5&timezone=auto`)
+      .pipe(
+        tap((response: any) => {
+          this.dailyDataSubject.next(response);
+        })
+      )
   }
 
-  getDailyData(lon: string, lat: string): Observable<any>{
-    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=rain_sum,windspeed_10m_max,winddirection_10m_dominant,weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=5&timezone=auto`);
-  }
-
-  getHourlyData(lon: string, lat: string): Observable<any>{
-    return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=weathercode,temperature_2m,apparent_temperature,precipitation_probability,rain,showers,snowfall,surface_pressure,visibility,windspeed_10m,winddirection_10m,is_day&forecast_days=5`);
+  getHourlyData(lon: string, lat: string): Observable<HourlyWeatherData>{
+     return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=weathercode,temperature_2m,apparent_temperature,precipitation_probability,rain,showers,snowfall,surface_pressure,visibility,windspeed_10m,winddirection_10m,is_day&forecast_days=5`)
+      .pipe(
+        tap((response: any) => {
+          this.hourlyDataSubject.next(response);
+        })
+      )
   }
 
   mapDailyWeatherData(data: DailyWeatherData): DailyWeatherData{
@@ -106,6 +127,12 @@ export class WeatherDataService {
       showers: day.showers[index],
       snowfall: day.snowfall[index],
     }
+  }
+
+  getCurrentTime(): string{
+    const date = new Date()
+    let hour = date.getHours().toString();
+    return `${hour.length === 1 ? '0' : '' }${hour}:00`;
   }
 
   getWeatherIcons(code: number): string {
