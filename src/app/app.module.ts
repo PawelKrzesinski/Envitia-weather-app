@@ -15,6 +15,8 @@ import { RouterModule } from '@angular/router';
 import { CarouselModule } from 'primeng/carousel';
 import { AvatarModule } from 'primeng/avatar';
 import { WeatherDailyComponent } from './weather-daily/weather-daily.component';
+import { WeatherHourlyComponent } from './weather-hourly/weather-hourly.component';
+import { WeatherCurrentlyComponent } from './weather-currently/weather-currently.component';
 
 
 
@@ -24,6 +26,8 @@ import { WeatherDailyComponent } from './weather-daily/weather-daily.component';
     AppComponent,
     WeatherDisplayComponent,
     WeatherDailyComponent,
+    WeatherHourlyComponent,
+    WeatherCurrentlyComponent,
   ],
   imports: [
     RouterModule.forRoot([]),
