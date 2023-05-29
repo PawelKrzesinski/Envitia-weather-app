@@ -2,38 +2,4 @@
   <app-weather-daily></app-weather-daily>
   <app-weather-currently class="weather-currently"></app-weather-currently>
 </div>
-<!-- HOURLY INFO CAROUSELS -->
-<!-- <ng-container *ngIf="(hourlyWeatherData$ | async) as hourlyWeatherData">
-  <div [ngSwitch]="selectedDay">
-    <ng-container *ngSwitchCase="activeIndex">
-      <p-carousel [value]="hours" [numVisible]="6" [numScroll]="6" [circular]="true" [responsiveOptions]="responsiveOptions">
-        <ng-template let-hour pTemplate="body">
-          <p-card class="no-header-card border-noround bg-white hourly-info">
-            <h3>{{hour}}</h3>
-            <div class="flex align-items-center">
-              <img src="../../assets/icons/thermometer.svg" class="weather-icons">
-              <p class="ml-1">Temp/Feels: {{ hourlyWeatherData[activeIndex].temperature_2m[hours.indexOf(hour)] }}&deg;C/{{ hourlyWeatherData[activeIndex].apparent_temperature[hours.indexOf(hour)] }}&deg;C</p>
-            </div>
-            <div class="flex align-items-center">
-              <img src="../../assets/icons/rain.svg" class="weather-icons">
-              <p class="ml-1">Precipitation: {{ hourlyWeatherData[activeIndex].precipitation_probability[hours.indexOf(hour)]}}%</p>
-            </div>
-            <div class="flex align-items-center">
-              <img src="../../assets/icons/gauge.svg" class="weather-icons">
-              <p class="ml-1">Pressure: {{ hourlyWeatherData[activeIndex].surface_pressure[hours.indexOf(hour)] }}hPa</p>
-            </div>
-            <div class="flex align-items-center">
-              <img src="../../assets/icons/wind.svg" class="weather-icons">
-              <p class="ml-1">Wind speed: {{ hourlyWeatherData[activeIndex].windspeed_10m[hours.indexOf(hour)] }}km/h</p>
-            </div>
-            <div class="flex align-items-center">
-              <img src="../../assets/icons/visibility.svg" class="weather-icons">
-              <p class="ml-1">Visibility: {{ hourlyWeatherData[activeIndex].visibility[hours.indexOf(hour)] }}m</p>
-            </div>
-          </p-card>
-        </ng-template>
-      </p-carousel>
-    </ng-container>
-      
-  </div>
-</ng-container> -->
+<app-weather-hourly></app-weather-hourly>

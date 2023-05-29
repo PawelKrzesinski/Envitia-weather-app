@@ -13,6 +13,9 @@ export class WeatherDataService {
   private hourlyDataSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   public hourlyData$: Observable<{ hourly: HourlyWeatherData}> = this.hourlyDataSubject.asObservable();
 
+  private activeIndex = new BehaviorSubject<number>(0);
+  activeIndex$ = this.activeIndex.asObservable();
+
   responsiveOptions = [
     {
         breakpoint: '1564px',
@@ -42,18 +45,14 @@ export class WeatherDataService {
   ];
   constructor(private http: HttpClient){}
 
-  // getCurrentData(lon: string, lat: string): Observable<any>{
-  //   return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&current_weather=true`);
-  // }
-
   getDailyData(lon: string, lat: string): Observable<DailyWeatherDataWithTimezone>{
     return this.http.get<DailyWeatherDataWithTimezone>(
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=rain_sum,windspeed_10m_max,winddirection_10m_dominant,weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=5&timezone=auto`)
-      .pipe(
-        tap((response: DailyWeatherDataWithTimezone) => {
-          this.dailyDataSubject.next(response);
-        })
-      )
+        .pipe(
+          tap((response: DailyWeatherDataWithTimezone) => {
+            this.dailyDataSubject.next(response);
+          })
+        )
   }
 
   getHourlyData(lon: string, lat: string): void{
@@ -92,7 +91,7 @@ export class WeatherDataService {
     const roundedTemperature = DataHandling.roundTheNumbers(hourlyData.temperature_2m)
     const roundedFeelsLike = DataHandling.roundTheNumbers(hourlyData.apparent_temperature ) 
     const roundedPressure = DataHandling.roundTheNumbers(hourlyData.surface_pressure) 
-    const roundedWindSpeed = DataHandling.roundTheNumbers(hourlyData.windspeed_10m) 
+    const roundedWindSpeed = DataHandling.roundTheNumbers(hourlyData.windspeed_10m)
     return days.map((item) => {
       return item = {
         time: hourlyData.time.splice(0, hours.length),
@@ -133,6 +132,10 @@ export class WeatherDataService {
     const date = new Date()
     let hour = date.getHours().toString();
     return `${hour.length === 1 ? '0' : '' }${hour}:00`;
+  }
+
+  changeTab(index: number) {
+    this.activeIndex.next(index);
   }
 
   getWeatherIcons(code: number): string {

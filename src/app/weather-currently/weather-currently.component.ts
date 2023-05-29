@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription, filter } from 'rxjs';
 import { WeatherDataService } from '../services/weather-data.service';
 import { HourlyWeatherData, CurrentWeatherDataByHour } from '../weather-display/weather.model';
@@ -8,8 +8,7 @@ import * as DefaultData from '../helpers/data-default-storage.helper';
   templateUrl: './weather-currently.component.html',
   styleUrls: ['./weather-currently.component.css']
 })
-export class WeatherCurrentlyComponent implements OnInit {
-  hourlyWeatherData: HourlyWeatherData[] = [];
+export class WeatherCurrentlyComponent implements OnInit, OnDestroy{
   subscription: Subscription | undefined;
   currentHourly: CurrentWeatherDataByHour = DefaultData.currentHourly;
   hours: string[] = [];
@@ -30,11 +29,7 @@ export class WeatherCurrentlyComponent implements OnInit {
     return this.weatherDataService.getCurrentTime();
   }
 
-
-
-
-
-
-
-  // this.currentHourly = this.extractDataByHour(hourlyWeatherData[0], this.getCurrentTime(), this.hours);
+  ngOnDestroy(): void {
+    if(this.subscription) this.subscription.unsubscribe();
+  }
 }

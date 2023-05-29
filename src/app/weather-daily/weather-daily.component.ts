@@ -26,16 +26,15 @@ export class WeatherDailyComponent implements OnInit {
     });
   }
 
-  // napisac loopa do days.push() bazuje na .length daty
+  
   ngOnInit(): void {
     this.dailyWeatherData$ = this.weatherDataService.getDailyData('-3.53', '50.72').pipe(
       map((data: DailyWeatherDataWithTimezone) => {
-        console.log(data)
         this.timezone = data.timezone;
         this.dates = DataHandling.changeDateFormat(data.daily.time);
         if(this.dates[0]) this.dates[0] = this.dates[0] +"(Today)";
         this.weatherCodes = data.daily.weathercode;
-        return this.weatherDataService.mapDailyWeatherData(data.daily)
+        return this.weatherDataService.mapDailyWeatherData(data.daily);
       }),
     );
     this.weatherDataService.getHourlyData('-3.53', '50.72');
@@ -74,8 +73,7 @@ export class WeatherDailyComponent implements OnInit {
   }
 
   dayChangeHandler(event: any): void{
-    this.selectedDay = event.index;
-    this.activeIndex = event.index;
+    this.weatherDataService.changeTab(event.index);
   }
   
   fetchWeatherIcon(code: number): string{
