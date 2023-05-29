@@ -6,3 +6,7 @@ body {
   /* background-color: #A4E3F9 !important; */
   background: url('../assets/img/background.jpg');
 }
+
+html, body {
+  width: 100% !important;
+}
