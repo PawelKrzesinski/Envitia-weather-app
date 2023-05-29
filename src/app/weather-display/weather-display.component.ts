@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { WeatherDataService } from './services/weather-data.service';
 import { Observable, map, tap } from 'rxjs';
@@ -8,7 +8,8 @@ import * as DataHandling from './helpers/data-handling.helper';
 @Component({
   selector: 'app-weather-display',
   templateUrl: './weather-display.component.html',
-  styleUrls: ['./weather-display.component.css']
+  styleUrls: ['./weather-display.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class WeatherDisplayComponent implements OnInit {
   responsiveOptions: ResponsiveSettings[] = [];
@@ -49,7 +50,7 @@ export class WeatherDisplayComponent implements OnInit {
       map((data: { hourly: HourlyWeatherData }) => {
         return this.weatherDataService.mapHourlyWeatherData(data.hourly, this.hours);
       }),
-      tap((hourlyWeatherData) => {
+      tap((hourlyWeatherData: HourlyWeatherData[]) => {
         this.currentHourly = this.extractDataByHour(hourlyWeatherData[0], this.getCurrentTime(), this.hours);
       })
     );
@@ -80,7 +81,7 @@ export class WeatherDisplayComponent implements OnInit {
         map((data: { hourly: HourlyWeatherData }) => {
           return this.weatherDataService.mapHourlyWeatherData(data.hourly, this.hours);
         }),
-        tap((hourlyWeatherData) => {
+        tap((hourlyWeatherData: HourlyWeatherData[]) => {
           this.currentHourly = this.extractDataByHour(hourlyWeatherData[0], this.getCurrentTime(), this.hours);
         })
       );
@@ -103,6 +104,6 @@ export class WeatherDisplayComponent implements OnInit {
   getCurrentTime(): string{
     const date = new Date()
     let hour = date.getHours().toString();
-    return `${hour}:00`;
+    return `${hour.length === 1 ? '0' : '' }${hour}:00`;
   }
 }
