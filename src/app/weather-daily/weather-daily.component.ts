@@ -49,27 +49,19 @@ export class WeatherDailyComponent implements OnInit {
   }
 
   getWeatherByLonLat(){
-    // if (this.locationForm.valid) {
-    //   const formData: { lat: number, lon: number } = this.locationForm.value;
-    //   this.dailyWeatherData$ = this.weatherDataService.getDailyData(formData.lon.toString(), formData.lat.toString()).pipe(
-    //     map((data: { daily: DailyWeatherData, timezone: string }) =>{
-    //       this.timezone = data.timezone;
-    //       this.dates = DataHandling.changeDateFormat(data.daily.time);
-    //       if(this.dates[0]) this.dates[0] = this.dates[0] +"(Today)";
-    //       this.weatherCodes = data.daily.weathercode;
-    //       return this.weatherDataService.mapDailyWeatherData(data.daily)
-    //     })
-    //   );
-      // this.hourlyWeatherData$ = this.weatherDataService.getHourlyData(formData.lon.toString(), formData.lat.toString()).pipe(
-      //   map((data: { hourly: HourlyWeatherData }) => {
-      //     return this.weatherDataService.mapHourlyWeatherData(data.hourly, this.weatherDataService.hours);
-      //   }),
-      //   tap((hourlyWeatherData: HourlyWeatherData[]) => {
-
-      //       );
-      //   })
-      //);
-    //}
+    if (this.locationForm.valid) {
+      const formData: { lat: number, lon: number } = this.locationForm.value;
+      this.dailyWeatherData$ = this.weatherDataService.getDailyData(formData.lon.toString(), formData.lat.toString()).pipe(
+        map((data: DailyWeatherDataWithTimezone) => {
+          this.timezone = data.timezone;
+          this.dates = DataHandling.changeDateFormat(data.daily.time);
+          if(this.dates[0]) this.dates[0] = this.dates[0] +"(Today)";
+          this.weatherCodes = data.daily.weathercode;
+          return this.weatherDataService.mapDailyWeatherData(data.daily);
+        }),
+      );
+      this.weatherDataService.getHourlyData(formData.lon.toString(), formData.lat.toString());
+    }
   }
 
   dayChangeHandler(event: any): void{
