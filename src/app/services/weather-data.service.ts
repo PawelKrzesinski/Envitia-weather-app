@@ -10,8 +10,8 @@ export class WeatherDataService {
   private dailyDataSubject: BehaviorSubject<DailyWeatherDataWithTimezone> = new BehaviorSubject<DailyWeatherDataWithTimezone>({} as DailyWeatherDataWithTimezone);
   public dailyData$: Observable<DailyWeatherDataWithTimezone> = this.dailyDataSubject.asObservable();
 
-  private hourlyDataSubject: BehaviorSubject<HourlyWeatherData> = new BehaviorSubject<HourlyWeatherData>({} as HourlyWeatherData);
-  public hourlyData$: Observable<HourlyWeatherData> = this.hourlyDataSubject.asObservable();
+  private hourlyDataSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
+  public hourlyData$: Observable<{ hourly: HourlyWeatherData}> = this.hourlyDataSubject.asObservable();
 
   responsiveOptions = [
     {
@@ -47,22 +47,22 @@ export class WeatherDataService {
   // }
 
   getDailyData(lon: string, lat: string): Observable<DailyWeatherDataWithTimezone>{
-    return this.http.get(
+    return this.http.get<DailyWeatherDataWithTimezone>(
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=rain_sum,windspeed_10m_max,winddirection_10m_dominant,weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=5&timezone=auto`)
       .pipe(
-        tap((response: any) => {
+        tap((response: DailyWeatherDataWithTimezone) => {
           this.dailyDataSubject.next(response);
         })
       )
   }
 
-  getHourlyData(lon: string, lat: string): Observable<HourlyWeatherData>{
-     return this.http.get(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=weathercode,temperature_2m,apparent_temperature,precipitation_probability,rain,showers,snowfall,surface_pressure,visibility,windspeed_10m,winddirection_10m,is_day&forecast_days=5`)
+  getHourlyData(lon: string, lat: string): void{
+     this.http.get<HourlyWeatherData[]>(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=weathercode,temperature_2m,apparent_temperature,precipitation_probability,rain,showers,snowfall,surface_pressure,visibility,windspeed_10m,winddirection_10m,is_day&forecast_days=5`)
       .pipe(
-        tap((response: any) => {
+        tap((response: HourlyWeatherData[]) => {
           this.hourlyDataSubject.next(response);
         })
-      )
+      ).subscribe()
   }
 
   mapDailyWeatherData(data: DailyWeatherData): DailyWeatherData{

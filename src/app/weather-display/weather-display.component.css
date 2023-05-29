@@ -253,6 +253,9 @@ h2, h3 {
   .daily-weather-card-inner {
     margin-bottom: 1rem !important;
   }
+  .weather-currently {
+    margin-left: 2rem;
+  }
 }
 @media only screen and (min-width: 1440px) {
   .main-content {
@@ -296,10 +299,11 @@ h2, h3 {
   .lat-lon-labels{
     font-size: 16px;
   }
-  .current-info{
+  .weather-currently {
     margin-left: 0;
     margin-right: 0;
   }
+
   .current-info h2{
     font-size: 32px;
     font-weight: 500;

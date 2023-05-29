@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Observable, Subscription, map, tap } from 'rxjs';
+import { Observable, Subscription, distinctUntilChanged, map, switchMap, take, tap } from 'rxjs';
 import { WeatherDataService } from '../services/weather-data.service';
 import { DailyWeatherData, DailyWeatherDataWithTimezone, HourlyWeatherData } from '../weather-display/weather.model';
 import * as DataHandling from '../helpers/data-handling.helper';
@@ -26,9 +26,8 @@ export class WeatherDailyComponent implements OnInit {
     });
   }
 
+  // napisac loopa do days.push() bazuje na .length daty
   ngOnInit(): void {
-    // napisac loopa do days.push() bazuje na .length daty
-    
     this.dailyWeatherData$ = this.weatherDataService.getDailyData('-3.53', '50.72').pipe(
       map((data: DailyWeatherDataWithTimezone) => {
         console.log(data)
@@ -37,10 +36,11 @@ export class WeatherDailyComponent implements OnInit {
         if(this.dates[0]) this.dates[0] = this.dates[0] +"(Today)";
         this.weatherCodes = data.daily.weathercode;
         return this.weatherDataService.mapDailyWeatherData(data.daily)
-      },
-    ));
-    
+      }),
+    );
+    this.weatherDataService.getHourlyData('-3.53', '50.72');
   }
+
   get lon() {
     return this.locationForm.get('lon');
   }
@@ -50,17 +50,17 @@ export class WeatherDailyComponent implements OnInit {
   }
 
   getWeatherByLonLat(){
-    if (this.locationForm.valid) {
-      const formData: { lat: number, lon: number } = this.locationForm.value;
-      this.dailyWeatherData$ = this.weatherDataService.getDailyData(formData.lon.toString(), formData.lat.toString()).pipe(
-        map((data: { daily: DailyWeatherData, timezone: string }) =>{
-          this.timezone = data.timezone;
-          this.dates = DataHandling.changeDateFormat(data.daily.time);
-          if(this.dates[0]) this.dates[0] = this.dates[0] +"(Today)";
-          this.weatherCodes = data.daily.weathercode;
-          return this.weatherDataService.mapDailyWeatherData(data.daily)
-        })
-      );
+    // if (this.locationForm.valid) {
+    //   const formData: { lat: number, lon: number } = this.locationForm.value;
+    //   this.dailyWeatherData$ = this.weatherDataService.getDailyData(formData.lon.toString(), formData.lat.toString()).pipe(
+    //     map((data: { daily: DailyWeatherData, timezone: string }) =>{
+    //       this.timezone = data.timezone;
+    //       this.dates = DataHandling.changeDateFormat(data.daily.time);
+    //       if(this.dates[0]) this.dates[0] = this.dates[0] +"(Today)";
+    //       this.weatherCodes = data.daily.weathercode;
+    //       return this.weatherDataService.mapDailyWeatherData(data.daily)
+    //     })
+    //   );
       // this.hourlyWeatherData$ = this.weatherDataService.getHourlyData(formData.lon.toString(), formData.lat.toString()).pipe(
       //   map((data: { hourly: HourlyWeatherData }) => {
       //     return this.weatherDataService.mapHourlyWeatherData(data.hourly, this.weatherDataService.hours);
@@ -70,16 +70,12 @@ export class WeatherDailyComponent implements OnInit {
       //       );
       //   })
       //);
-    }
+    //}
   }
 
   dayChangeHandler(event: any): void{
     this.selectedDay = event.index;
     this.activeIndex = event.index;
-  }
-  fetchData(lon: string, lat: string){
-    
-    this.weatherDataService.getHourlyData(lon, lat).subscribe();
   }
   
   fetchWeatherIcon(code: number): string{

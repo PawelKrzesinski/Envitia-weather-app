@@ -1,1 +1,45 @@
-<p>weather-currently works!</p>
+
+<p-card class="no-header-card current-info">
+  <h2>Currently</h2>
+  <div class="flex align-items-center justify-content-center mb-4 current-temps">
+    <img src="../../assets/icons/thermometer.svg" class="weather-icons">
+    <h3 class="m-0">
+      Temperature/Feels Like: {{ currentHourly.temp }}&deg;C/{{ currentHourly.feels_like }}&deg;C
+    </h3>
+  </div>
+  <div class="flex current-info-details">
+    <div>
+      <div class="flex align-items-center">
+        <img src="../../assets/icons/rain.svg" class="weather-icons">
+        <p class="ml-2 current-extras">Precipitation: {{ currentHourly.precipitation}}%</p>
+      </div>
+      <div class="flex align-items-center">
+        <img src="../../assets/icons/gauge.svg" class="weather-icons">
+        <p class="ml-2 current-extras">Pressure: {{ currentHourly.pressure }}hPa</p>
+      </div>
+      <div class="flex align-items-center">
+        <img src="../../assets/icons/arrow_up.svg" class="weather-icons" [ngStyle]="{ transform: 'rotate(' + currentHourly.wind_direction + 'deg)' }">
+        <p class="ml-2 current-extras">Wind speed: {{ currentHourly.windspeed }}km/h</p>
+      </div>
+      <div class="flex align-items-center">
+        <img src="../../assets/icons/visibility.svg" class="weather-icons" >
+        <p class="ml-2 current-extras">Visibility: {{ currentHourly.visibility }}m</p>
+      </div>
+    </div>
+    <div class="flex flex-column justify-content-center ml-4 second-part">
+      <div class="flex align-items-center">
+        <img src="../../assets/icons/rain_l.svg" class="weather-icons">
+        <p class="ml-2 current-extras">Rain: {{ currentHourly.rain ? 'Yes' : 'No' }}</p>
+      </div>
+      <div class="flex align-items-center">
+        <img src="../../assets/icons/rain_h.svg" class="weather-icons">
+        <p class="ml-2 current-extras">Showers: {{ currentHourly.showers ? 'Yes' : 'No' }}</p>
+      </div>
+      <div class="flex align-items-center">
+        <img src="../../assets/icons/snow.svg" class="weather-icons">
+        <p class="ml-2 current-extras">Snowfall: {{ currentHourly.snowfall ? 'Yes' : 'No' }}</p>
+      </div>
+    </div>
+  </div>
+  
+</p-card>
